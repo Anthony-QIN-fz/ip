@@ -8,16 +8,16 @@ final class TaskList {
     private int size;
 
     /**
-     * Adds a task with the supplied description.
+     * Adds the supplied task to the end of the list.
      *
-     * @param description text entered by the user
+     * @param task task to add
      * @throws TaskListFullException if the task list has reached its capacity
      */
-    void add(String description) throws TaskListFullException {
+    void add(Task task) throws TaskListFullException {
         if (size == MAX_TASKS) {
             throw new TaskListFullException();
         }
-        tasks[size] = new Todo(description);
+        tasks[size] = task;
         size++;
     }
 

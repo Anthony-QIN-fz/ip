@@ -15,9 +15,11 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    In the same dialog, set the **Project language level** field to the `SDK default` option.
 1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
 
-Olaf stores each line of text as a task for the current session. Enter `list` to display the stored tasks,
-`mark <task number>` to mark a task as done, `unmark <task number>` to mark a task as not done, or `bye` to
-exit. A typical session looks like this:
+Olaf stores ToDos, deadlines, and events for the current session. Add them with
+`todo <description>`, `deadline <description> /by <date or time>`, or
+`event <description> /from <start> /to <end>`. Dates and times can be entered in any text format.
+Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
+`unmark <task number>` to mark a task as not done, or `bye` to exit. A typical session looks like this:
 
    ```
      ___  _        __
@@ -28,41 +30,47 @@ exit. A typical session looks like this:
 
    Hello! I'm Olaf. What can I do for you?
    ____________________________________________________________
-   read book
+   todo read book
    ____________________________________________________________
-   added: read book
+    Got it. I've added this task:
+      [T][ ] read book
+    Now you have 1 task in the list.
    ____________________________________________________________
-   return book
+   deadline return book /by Sunday
    ____________________________________________________________
-   added: return book
+    Got it. I've added this task:
+      [D][ ] return book (by: Sunday)
+    Now you have 2 tasks in the list.
+   ____________________________________________________________
+   event project meeting /from Mon 2pm /to 4pm
+   ____________________________________________________________
+    Got it. I've added this task:
+      [E][ ] project meeting (from: Mon 2pm to: 4pm)
+    Now you have 3 tasks in the list.
    ____________________________________________________________
    list
    ____________________________________________________________
     Here are the tasks in your list:
-    1.[ ] read book
-    2.[ ] return book
+    1.[T][ ] read book
+    2.[D][ ] return book (by: Sunday)
+    3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
    ____________________________________________________________
    mark 2
    ____________________________________________________________
     Nice! I've marked this task as done:
-      [X] return book
+      [D][X] return book (by: Sunday)
    ____________________________________________________________
    list
    ____________________________________________________________
     Here are the tasks in your list:
-    1.[ ] read book
-    2.[X] return book
+    1.[T][ ] read book
+    2.[D][X] return book (by: Sunday)
+    3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
    ____________________________________________________________
    unmark 2
    ____________________________________________________________
     OK, I've marked this task as not done yet:
-      [ ] return book
-   ____________________________________________________________
-   list
-   ____________________________________________________________
-    Here are the tasks in your list:
-    1.[ ] read book
-    2.[ ] return book
+      [D][ ] return book (by: Sunday)
    ____________________________________________________________
    bye
    ____________________________________________________________

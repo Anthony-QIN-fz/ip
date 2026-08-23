@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Runs the Olaf chatbot application.
@@ -16,10 +18,24 @@ public class Olaf {
     private static final String LIST_COMMAND = "list";
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
+    private static final String TODO_COMMAND = "todo";
+    private static final String DEADLINE_COMMAND = "deadline";
+    private static final String EVENT_COMMAND = "event";
+    private static final String BY_MARKER = "/by";
+    private static final String FROM_MARKER = "/from";
+    private static final String TO_MARKER = "/to";
     private static final String INVALID_MARK_COMMAND_MESSAGE =
             "Use 'mark <task number>' to mark a task as done.";
     private static final String INVALID_UNMARK_COMMAND_MESSAGE =
             "Use 'unmark <task number>' to mark a task as not done.";
+    private static final String INVALID_TODO_COMMAND_MESSAGE =
+            "Use 'todo <description>' to add a ToDo.";
+    private static final String INVALID_DEADLINE_COMMAND_MESSAGE =
+            "Use 'deadline <description> /by <date or time>' to add a deadline.";
+    private static final String INVALID_EVENT_COMMAND_MESSAGE =
+            "Use 'event <description> /from <start> /to <end>' to add an event.";
+    private static final String UNKNOWN_COMMAND_MESSAGE =
+            "Unknown command. Use todo, deadline, event, list, mark, unmark, or bye.";
 
     private final TaskList tasks = new TaskList();
 
@@ -59,13 +75,88 @@ public class Olaf {
             handleUnmarkCommand(command);
             return;
         }
+        if (startsWithCommandWord(command, TODO_COMMAND)) {
+            handleTodoCommand(command);
+            return;
+        }
+        if (startsWithCommandWord(command, DEADLINE_COMMAND)) {
+            handleDeadlineCommand(command);
+            return;
+        }
+        if (startsWithCommandWord(command, EVENT_COMMAND)) {
+            handleEventCommand(command);
+            return;
+        }
 
+        printError(UNKNOWN_COMMAND_MESSAGE);
+    }
+
+    private void handleTodoCommand(String command) {
+        String description = getCommandArguments(command);
+        if (description.isEmpty()) {
+            printError(INVALID_TODO_COMMAND_MESSAGE);
+            return;
+        }
+        addTask(new Todo(description));
+    }
+
+    private void handleDeadlineCommand(String command) {
+        String arguments = getCommandArguments(command);
+        int byMarkerIndex = findMarker(arguments, BY_MARKER);
+        if (byMarkerIndex < 0) {
+            printError(INVALID_DEADLINE_COMMAND_MESSAGE);
+            return;
+        }
+
+        String description = arguments.substring(0, byMarkerIndex).trim();
+        String by = arguments.substring(byMarkerIndex + BY_MARKER.length()).trim();
+        if (description.isEmpty() || by.isEmpty()) {
+            printError(INVALID_DEADLINE_COMMAND_MESSAGE);
+            return;
+        }
+        addTask(new Deadline(description, by));
+    }
+
+    private void handleEventCommand(String command) {
+        String arguments = getCommandArguments(command);
+        int fromMarkerIndex = findMarker(arguments, FROM_MARKER);
+        int toMarkerIndex = findMarker(arguments, TO_MARKER);
+        if (fromMarkerIndex < 0 || toMarkerIndex < fromMarkerIndex + FROM_MARKER.length()) {
+            printError(INVALID_EVENT_COMMAND_MESSAGE);
+            return;
+        }
+
+        String description = arguments.substring(0, fromMarkerIndex).trim();
+        String from = arguments.substring(fromMarkerIndex + FROM_MARKER.length(), toMarkerIndex).trim();
+        String to = arguments.substring(toMarkerIndex + TO_MARKER.length()).trim();
+        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+            printError(INVALID_EVENT_COMMAND_MESSAGE);
+            return;
+        }
+        addTask(new Event(description, from, to));
+    }
+
+    private void addTask(Task task) {
         try {
-            tasks.add(command);
-            printMessage("added: " + command);
+            tasks.add(task);
+            String taskWord = tasks.size() == 1 ? "task" : "tasks";
+            printMessage(" Got it. I've added this task:\n   " + task
+                    + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
         } catch (TaskListFullException exception) {
             printError(exception.getMessage());
         }
+    }
+
+    private String getCommandArguments(String command) {
+        String[] commandParts = command.trim().split("\\s+", 2);
+        return commandParts.length == 2 ? commandParts[1].trim() : "";
+    }
+
+    private int findMarker(String text, String marker) {
+        Pattern markerPattern = Pattern.compile(
+                "(?i)(?<!\\S)" + Pattern.quote(marker) + "(?!\\S)");
+        Matcher matcher = markerPattern.matcher(text);
+        return matcher.find() ? matcher.start() : -1;
     }
 
     private void handleUnmarkCommand(String command) {

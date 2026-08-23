@@ -1,33 +1,38 @@
 # Olaf User Guide
 
-// Update the title above to match the actual product name
+Olaf is a command-line chatbot that tracks ToDos, deadlines, and events for the current session.
+Dates and times are stored exactly as text, so you can use the format that is most useful to you.
 
-// Product screenshot goes here
+## Adding ToDos
 
-// Product intro goes here
+Use `todo <description>` for a task without a date or time.
+
+Example: `todo borrow book`
+
+Olaf adds and displays the task as `[T][ ] borrow book`.
 
 ## Adding deadlines
 
-// Describe the action and its outcome.
+Use `deadline <description> /by <date or time>` for a task that must be completed by a given time.
 
-// Give examples of usage
+Example: `deadline return book /by Sunday`
 
-Example: `keyword (optional arguments)`
+Olaf adds and displays the task as `[D][ ] return book (by: Sunday)`.
 
-// A description of the expected outcome goes here
+## Adding events
 
-```
-expected output
-```
+Use `event <description> /from <start> /to <end>` for a task with a start and end.
 
-## Feature ABC
+Example: `event project meeting /from Mon 2pm /to 4pm`
 
-// Feature details
+Olaf adds and displays the task as `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
 
+## Managing tasks
 
-## Feature XYZ
-
-// Feature details
+- Use `list` to display all tasks and their task numbers.
+- Use `mark <task number>` to mark a task as done.
+- Use `unmark <task number>` to mark a task as not done.
+- Use `bye` to exit Olaf.
 
 
 ## AI Use Declaration

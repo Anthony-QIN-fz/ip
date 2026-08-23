@@ -13,6 +13,9 @@ public class Olaf {
     private static final String GREETING = "Hello! I'm Olaf. What can I do for you?";
     private static final String FAREWELL = "Bye. Hope to see you again soon!";
     private static final String EXIT_COMMAND = "bye";
+    private static final String LIST_COMMAND = "list";
+
+    private final TaskList tasks = new TaskList();
 
     /**
      * Starts Olaf's command loop.
@@ -32,8 +35,22 @@ public class Olaf {
                     printFarewell();
                     return;
                 }
-                echoCommand(command);
+                handleCommand(command);
             }
+        }
+    }
+
+    private void handleCommand(String command) {
+        if (isListCommand(command)) {
+            printTaskList();
+            return;
+        }
+
+        try {
+            tasks.add(command);
+            printMessage("added: " + command);
+        } catch (TaskListFullException exception) {
+            printMessage("error: " + exception.getMessage());
         }
     }
 
@@ -48,17 +65,25 @@ public class Olaf {
         return command.trim().equalsIgnoreCase(EXIT_COMMAND);
     }
 
-    private void echoCommand(String command) {
+    private boolean isListCommand(String command) {
+        return command.trim().equalsIgnoreCase(LIST_COMMAND);
+    }
+
+    private void printTaskList() {
         System.out.println(DIVIDER);
-        System.out.println();
-        System.out.println(command);
+        for (int index = 0; index < tasks.size(); index++) {
+            System.out.println((index + 1) + ". " + tasks.getDescription(index));
+        }
         System.out.println(DIVIDER);
     }
 
     private void printFarewell() {
+        printMessage(FAREWELL);
+    }
+
+    private void printMessage(String message) {
         System.out.println(DIVIDER);
-        System.out.println();
-        System.out.println(FAREWELL);
+        System.out.println(message);
         System.out.println(DIVIDER);
     }
 }

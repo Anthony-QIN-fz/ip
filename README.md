@@ -13,7 +13,10 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    1. If there are any further prompts, accept the defaults.
 1. Configure the project to use **JDK 25** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
    In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
+1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
+
+Olaf stores each line of text as a task for the current session. Enter `list` to display the stored tasks or `bye` to exit. A typical session looks like this:
+
    ```
      ___  _        __
     / _ \| | __ _ / _|
@@ -23,13 +26,18 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
 
    Hello! I'm Olaf. What can I do for you?
    ____________________________________________________________
-   list
+   read book
+   ____________________________________________________________
+   added: read book
+   ____________________________________________________________
+   return book
+   ____________________________________________________________
+   added: return book
    ____________________________________________________________
    list
    ____________________________________________________________
-   blah
-   ____________________________________________________________
-   blah
+   1. read book
+   2. return book
    ____________________________________________________________
    bye
    ____________________________________________________________
@@ -38,3 +46,8 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+
+## AI Use Declaration
+
+As my intended career path is NOT related to software engineering, I choose AI-5 as my AI use level, where I get Codex to do the tasks, and then I myself review the results fully, including the code, tests, behavior etc.

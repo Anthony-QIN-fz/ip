@@ -9,5 +9,9 @@ public class Olaf {
                 + "| |_| | | (_| |  _|\n"
                 + " \\___/|_|\\__,_|_|";
         System.out.println(banner);
+        System.out.println();
+        System.out.println("Hello! I'm Olaf. What can I do for you?");
+        System.out.println();
+        System.out.println("Bye. Hope to see you again soon!");
     }
 }

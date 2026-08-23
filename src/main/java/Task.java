@@ -3,12 +3,25 @@
  */
 abstract class Task {
     private final String description;
+    private boolean isDone;
 
     protected Task(String description) {
         this.description = description;
     }
 
-    String getDescription() {
-        return description;
+    /**
+     * Marks this task as completed.
+     */
+    void markAsDone() {
+        isDone = true;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
+    }
+
+    private String getStatusIcon() {
+        return isDone ? "X" : " ";
     }
 }

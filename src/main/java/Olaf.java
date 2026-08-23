@@ -14,6 +14,8 @@ public class Olaf {
     private static final String FAREWELL = "Bye. Hope to see you again soon!";
     private static final String EXIT_COMMAND = "bye";
     private static final String LIST_COMMAND = "list";
+    private static final String MARK_COMMAND = "mark";
+    private static final String INVALID_MARK_COMMAND_MESSAGE = "Use 'mark <task number>' to mark a task as done.";
 
     private final TaskList tasks = new TaskList();
 
@@ -45,12 +47,34 @@ public class Olaf {
             printTaskList();
             return;
         }
+        if (isMarkCommand(command)) {
+            handleMarkCommand(command);
+            return;
+        }
 
         try {
             tasks.add(command);
             printMessage("added: " + command);
         } catch (TaskListFullException exception) {
-            printMessage("error: " + exception.getMessage());
+            printError(exception.getMessage());
+        }
+    }
+
+    private void handleMarkCommand(String command) {
+        String[] commandParts = command.trim().split("\\s+");
+        if (commandParts.length != 2) {
+            printError(INVALID_MARK_COMMAND_MESSAGE);
+            return;
+        }
+
+        try {
+            int taskNumber = Integer.parseInt(commandParts[1]);
+            Task markedTask = tasks.markAsDone(taskNumber);
+            printMessage(" Nice! I've marked this task as done:\n   " + markedTask);
+        } catch (NumberFormatException exception) {
+            printError(INVALID_MARK_COMMAND_MESSAGE);
+        } catch (InvalidTaskNumberException exception) {
+            printError(exception.getMessage());
         }
     }
 
@@ -69,10 +93,16 @@ public class Olaf {
         return command.trim().equalsIgnoreCase(LIST_COMMAND);
     }
 
+    private boolean isMarkCommand(String command) {
+        String[] commandParts = command.trim().split("\\s+", 2);
+        return commandParts[0].equalsIgnoreCase(MARK_COMMAND);
+    }
+
     private void printTaskList() {
         System.out.println(DIVIDER);
+        System.out.println(" Here are the tasks in your list:");
         for (int index = 0; index < tasks.size(); index++) {
-            System.out.println((index + 1) + ". " + tasks.getDescription(index));
+            System.out.println(" " + (index + 1) + "." + tasks.get(index));
         }
         System.out.println(DIVIDER);
     }
@@ -85,5 +115,9 @@ public class Olaf {
         System.out.println(DIVIDER);
         System.out.println(message);
         System.out.println(DIVIDER);
+    }
+
+    private void printError(String message) {
+        printMessage("error: " + message);
     }
 }

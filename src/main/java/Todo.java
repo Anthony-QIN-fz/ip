@@ -1,5 +1,5 @@
 /**
- * Represents a task without a date or completion status.
+ * Represents a task without a date.
  */
 final class Todo extends Task {
     Todo(String description) {

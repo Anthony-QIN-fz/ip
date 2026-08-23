@@ -21,11 +21,28 @@ final class TaskList {
         size++;
     }
 
+    /**
+     * Marks the task identified by its user-facing number as done.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @return the task that was marked
+     * @throws InvalidTaskNumberException if no task has the supplied number
+     */
+    Task markAsDone(int taskNumber) throws InvalidTaskNumberException {
+        if (taskNumber < 1 || taskNumber > size) {
+            throw new InvalidTaskNumberException(size);
+        }
+
+        Task task = tasks[taskNumber - 1];
+        task.markAsDone();
+        return task;
+    }
+
     int size() {
         return size;
     }
 
-    String getDescription(int index) {
-        return tasks[index].getDescription();
+    Task get(int index) {
+        return tasks[index];
     }
 }

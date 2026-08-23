@@ -16,6 +16,13 @@ abstract class Task {
         isDone = true;
     }
 
+    /**
+     * Marks this task as not completed.
+     */
+    void markAsNotDone() {
+        isDone = false;
+    }
+
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;

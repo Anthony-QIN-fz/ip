@@ -29,12 +29,21 @@ final class TaskList {
      * @throws InvalidTaskNumberException if no task has the supplied number
      */
     Task markAsDone(int taskNumber) throws InvalidTaskNumberException {
-        if (taskNumber < 1 || taskNumber > size) {
-            throw new InvalidTaskNumberException(size);
-        }
-
-        Task task = tasks[taskNumber - 1];
+        Task task = getByTaskNumber(taskNumber);
         task.markAsDone();
+        return task;
+    }
+
+    /**
+     * Marks the task identified by its user-facing number as not done.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @return the task that was marked as not done
+     * @throws InvalidTaskNumberException if no task has the supplied number
+     */
+    Task markAsNotDone(int taskNumber) throws InvalidTaskNumberException {
+        Task task = getByTaskNumber(taskNumber);
+        task.markAsNotDone();
         return task;
     }
 
@@ -44,5 +53,12 @@ final class TaskList {
 
     Task get(int index) {
         return tasks[index];
+    }
+
+    private Task getByTaskNumber(int taskNumber) throws InvalidTaskNumberException {
+        if (taskNumber < 1 || taskNumber > size) {
+            throw new InvalidTaskNumberException(size);
+        }
+        return tasks[taskNumber - 1];
     }
 }

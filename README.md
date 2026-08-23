@@ -15,7 +15,9 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    In the same dialog, set the **Project language level** field to the `SDK default` option.
 1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
 
-Olaf stores each line of text as a task for the current session. Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done, or `bye` to exit. A typical session looks like this:
+Olaf stores each line of text as a task for the current session. Enter `list` to display the stored tasks,
+`mark <task number>` to mark a task as done, `unmark <task number>` to mark a task as not done, or `bye` to
+exit. A typical session looks like this:
 
    ```
      ___  _        __
@@ -50,6 +52,17 @@ Olaf stores each line of text as a task for the current session. Enter `list` to
     Here are the tasks in your list:
     1.[ ] read book
     2.[X] return book
+   ____________________________________________________________
+   unmark 2
+   ____________________________________________________________
+    OK, I've marked this task as not done yet:
+      [ ] return book
+   ____________________________________________________________
+   list
+   ____________________________________________________________
+    Here are the tasks in your list:
+    1.[ ] read book
+    2.[ ] return book
    ____________________________________________________________
    bye
    ____________________________________________________________

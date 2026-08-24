@@ -18,6 +18,7 @@ public class Olaf {
     private static final String LIST_COMMAND = "list";
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
+    private static final String DELETE_COMMAND = "delete";
     private static final String TODO_COMMAND = "todo";
     private static final String DEADLINE_COMMAND = "deadline";
     private static final String EVENT_COMMAND = "event";
@@ -28,6 +29,8 @@ public class Olaf {
             "Use 'mark <task number>' to mark a task as done.";
     private static final String INVALID_UNMARK_COMMAND_MESSAGE =
             "Use 'unmark <task number>' to mark a task as not done.";
+    private static final String INVALID_DELETE_COMMAND_MESSAGE =
+            "Use 'delete <task number>' to delete a task.";
     private static final String INVALID_TODO_COMMAND_MESSAGE =
             "Use 'todo <description>' to add a ToDo.";
     private static final String INVALID_DEADLINE_COMMAND_MESSAGE =
@@ -35,7 +38,7 @@ public class Olaf {
     private static final String INVALID_EVENT_COMMAND_MESSAGE =
             "Use 'event <description> /from <start> /to <end>' to add an event.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Unknown command. Use todo, deadline, event, list, mark, unmark, or bye.";
+            "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.";
 
     private final TaskList tasks = new TaskList();
 
@@ -73,6 +76,10 @@ public class Olaf {
         }
         if (isUnmarkCommand(command)) {
             handleUnmarkCommand(command);
+            return;
+        }
+        if (isDeleteCommand(command)) {
+            handleDeleteCommand(command);
             return;
         }
         if (startsWithCommandWord(command, TODO_COMMAND)) {
@@ -137,14 +144,10 @@ public class Olaf {
     }
 
     private void addTask(Task task) {
-        try {
-            tasks.add(task);
-            String taskWord = tasks.size() == 1 ? "task" : "tasks";
-            printMessage(" Got it. I've added this task:\n   " + task
-                    + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
-        } catch (TaskListFullException exception) {
-            printError(exception.getMessage());
-        }
+        tasks.add(task);
+        String taskWord = tasks.size() == 1 ? "task" : "tasks";
+        printMessage(" Got it. I've added this task:\n   " + task
+                + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
     }
 
     private String getCommandArguments(String command) {
@@ -195,6 +198,26 @@ public class Olaf {
         }
     }
 
+    private void handleDeleteCommand(String command) {
+        String[] commandParts = command.trim().split("\\s+");
+        if (commandParts.length != 2) {
+            printError(INVALID_DELETE_COMMAND_MESSAGE);
+            return;
+        }
+
+        try {
+            int taskNumber = Integer.parseInt(commandParts[1]);
+            Task deletedTask = tasks.delete(taskNumber);
+            String taskWord = tasks.size() == 1 ? "task" : "tasks";
+            printMessage(" Noted. I've removed this task:\n   " + deletedTask
+                    + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
+        } catch (NumberFormatException exception) {
+            printError(INVALID_DELETE_COMMAND_MESSAGE);
+        } catch (InvalidTaskNumberException exception) {
+            printError(exception.getMessage());
+        }
+    }
+
     private void printWelcome() {
         System.out.println(BANNER);
         System.out.println();
@@ -216,6 +239,10 @@ public class Olaf {
 
     private boolean isUnmarkCommand(String command) {
         return startsWithCommandWord(command, UNMARK_COMMAND);
+    }
+
+    private boolean isDeleteCommand(String command) {
+        return startsWithCommandWord(command, DELETE_COMMAND);
     }
 
     private boolean startsWithCommandWord(String command, String commandWord) {

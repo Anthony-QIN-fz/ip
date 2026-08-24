@@ -19,7 +19,8 @@ Olaf stores ToDos, deadlines, and events for the current session. Add them with
 `todo <description>`, `deadline <description> /by <date or time>`, or
 `event <description> /from <start> /to <end>`. Dates and times can be entered in any text format.
 Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
-`unmark <task number>` to mark a task as not done, or `bye` to exit. A typical session looks like this:
+`unmark <task number>` to mark a task as not done, `delete <task number>` to remove a task,
+or `bye` to exit. A typical session looks like this:
 
    ```
      ___  _        __
@@ -71,6 +72,18 @@ Enter `list` to display the stored tasks, `mark <task number>` to mark a task as
    ____________________________________________________________
     OK, I've marked this task as not done yet:
       [D][ ] return book (by: Sunday)
+   ____________________________________________________________
+   delete 1
+   ____________________________________________________________
+    Noted. I've removed this task:
+      [T][ ] read book
+    Now you have 2 tasks in the list.
+   ____________________________________________________________
+   list
+   ____________________________________________________________
+    Here are the tasks in your list:
+    1.[D][ ] return book (by: Sunday)
+    2.[E][ ] project meeting (from: Mon 2pm to: 4pm)
    ____________________________________________________________
    bye
    ____________________________________________________________

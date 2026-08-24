@@ -1,24 +1,19 @@
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Stores Olaf's tasks in insertion order for the current application session.
  */
 final class TaskList {
-    private static final int MAX_TASKS = 100;
-
-    private final Task[] tasks = new Task[MAX_TASKS];
-    private int size;
+    private final List<Task> tasks = new ArrayList<>();
 
     /**
      * Adds the supplied task to the end of the list.
      *
      * @param task task to add
-     * @throws TaskListFullException if the task list has reached its capacity
      */
-    void add(Task task) throws TaskListFullException {
-        if (size == MAX_TASKS) {
-            throw new TaskListFullException();
-        }
-        tasks[size] = task;
-        size++;
+    void add(Task task) {
+        tasks.add(task);
     }
 
     /**
@@ -47,18 +42,34 @@ final class TaskList {
         return task;
     }
 
+    /**
+     * Deletes the task identified by its user-facing number.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @return the deleted task
+     * @throws InvalidTaskNumberException if no task has the supplied number
+     */
+    Task delete(int taskNumber) throws InvalidTaskNumberException {
+        validateTaskNumber(taskNumber);
+        return tasks.remove(taskNumber - 1);
+    }
+
     int size() {
-        return size;
+        return tasks.size();
     }
 
     Task get(int index) {
-        return tasks[index];
+        return tasks.get(index);
     }
 
     private Task getByTaskNumber(int taskNumber) throws InvalidTaskNumberException {
-        if (taskNumber < 1 || taskNumber > size) {
-            throw new InvalidTaskNumberException(size);
+        validateTaskNumber(taskNumber);
+        return tasks.get(taskNumber - 1);
+    }
+
+    private void validateTaskNumber(int taskNumber) throws InvalidTaskNumberException {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
+            throw new InvalidTaskNumberException(tasks.size());
         }
-        return tasks[taskNumber - 1];
     }
 }

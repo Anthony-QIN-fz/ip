@@ -32,7 +32,11 @@ Olaf adds and displays the task as `[E][ ] project meeting (from: Mon 2pm to: 4p
 - Use `list` to display all tasks and their task numbers.
 - Use `mark <task number>` to mark a task as done.
 - Use `unmark <task number>` to mark a task as not done.
+- Use `delete <task number>` to remove a task. The remaining tasks are renumbered automatically.
 - Use `bye` to exit Olaf.
+
+Example: `delete 2` removes the task currently displayed as number 2 and reports how many
+tasks remain in the list.
 
 
 ## AI Use Declaration

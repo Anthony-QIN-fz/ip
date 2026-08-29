@@ -2,10 +2,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stores Olaf's tasks in insertion order for the current application session.
+ * Stores Olaf's tasks in insertion order.
  */
 final class TaskList {
     private final List<Task> tasks = new ArrayList<>();
+
+    TaskList() {
+    }
+
+    /**
+     * Creates a task list containing a defensive copy of the supplied tasks.
+     *
+     * @param initialTasks tasks loaded from storage
+     */
+    TaskList(List<Task> initialTasks) {
+        tasks.addAll(initialTasks);
+    }
 
     /**
      * Adds the supplied task to the end of the list.
@@ -60,6 +72,15 @@ final class TaskList {
 
     Task get(int index) {
         return tasks.get(index);
+    }
+
+    /**
+     * Returns an immutable snapshot for persistence.
+     *
+     * @return snapshot of all tasks in insertion order
+     */
+    List<Task> getTasks() {
+        return List.copyOf(tasks);
     }
 
     private Task getByTaskNumber(int taskNumber) throws InvalidTaskNumberException {

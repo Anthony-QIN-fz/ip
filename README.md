@@ -15,12 +15,15 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    In the same dialog, set the **Project language level** field to the `SDK default` option.
 1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
 
-Olaf stores ToDos, deadlines, and events for the current session. Add them with
+Olaf stores ToDos, deadlines, and events across application sessions. Add them with
 `todo <description>`, `deadline <description> /by <date or time>`, or
 `event <description> /from <start> /to <end>`. Dates and times can be entered in any text format.
 Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
 `unmark <task number>` to mark a task as not done, `delete <task number>` to remove a task,
 or `bye` to exit. A typical session looks like this:
+
+Olaf loads tasks from `data/olaf.txt` when it starts and automatically saves the file whenever
+the task list changes. The `data` directory and file are created on the first task change.
 
    ```
      ___  _        __
@@ -96,4 +99,4 @@ or `bye` to exit. A typical session looks like this:
 
 ## AI Use Declaration
 
-As my intended career path is NOT related to software engineering, I choose AI-5 as my AI use level, where I get Codex to do the tasks, and then I myself review the results fully, including the code, tests, behavior etc.
+As my intended career path is NOT related to software engineering, I choose AI-5 as my AI use level, where I get Codex to do the tasks, and then I myself review the results.

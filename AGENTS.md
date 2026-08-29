@@ -38,6 +38,8 @@ Do not commit or push unless explicitly asked.
 
 Make sure your code follows the OOP principle. e.g., at least some use of inheritance, with code divided into classes in a sensible way
 
+Make sure your code follows the Java coding standard in the next section.
+
 Make sure at least half of the public methods/classes have Javadoc comments.
 
 You must provide reasonable code quality as follows:
@@ -46,4 +48,57 @@ You must provide reasonable code quality as follows:
 * Reasonable use of SLAP, e.g., no very long methods or deeply nested code.
 
 Make sure at least some errors are handled using exceptions.
+
+## Java coding standard
+
+# Java Coding Standard — Basic + Intermediate
+
+For topics not specified here, follow the **Google Java Style Guide**.
+
+# Naming
+
+* Packages: lowercase; school projects should use the group/project name as the root.
+* Classes/enums: noun-based `PascalCase`.
+* Variables: `camelCase`.
+* Constants: `SCREAMING_SNAKE_CASE`; related constants should share a prefix.
+* Methods: verb-based `camelCase`.
+* Tests may use `featureUnderTest_scenario_expectedBehavior`.
+* Acronyms inside identifiers use normal casing rather than all caps.
+* Use English names.
+* Use longer variable names for wider scopes; short scratch/index names are acceptable locally.
+* Boolean names should read as boolean predicates, preferably using `is`, `has`, `was`, `can`, `should`, etc.
+* Collection names should generally be plural.
+* Iterator names such as `i`, `j`, and `k` are acceptable, with later letters typically used for nested loops.
+
+# Layout
+
+* Indent using **4 spaces**, never tabs.
+* Aim below **110 characters per line**; do not exceed **120**.
+* Wrapped lines use an additional **8 spaces**.
+* Wrap for readability: generally after commas and before operators; keep method names attached to `(`.
+* Prefer breaking expressions at higher syntactic levels.
+* Use **K&R/Egyptian braces**.
+* Always use conventional block formatting for methods, conditionals, loops, `switch`, and `try/catch/finally`.
+* Explicitly mark intentional `switch` fall-through.
+* Put spaces around operators and after Java keywords, commas, and `for` semicolons.
+* Separate logical units with blank lines. 
+
+# Statements
+
+* Do not change the locations of any Java file.
+* Keep import ordering consistent and list imports explicitly; avoid wildcard imports.
+* Write arrays as `int[] values`, not `int values[]`.
+* Initialize variables at declaration when possible and keep their scope minimal.
+* Avoid public mutable fields except where appropriate for pure data classes; constants are exempt.
+* Always use braces around loop and conditional bodies, even for one statement.
+* Put conditional bodies on separate lines rather than writing one-line `if` statements. 
+
+# Comments and Javadoc
+
+* Write comments in English, using American spelling and avoiding local slang.
+* Document classes and public methods, with exceptions such as obvious getters/setters, applicable inherited documentation, and test code.
+* Javadoc should begin with a concise summary sentence, use standard aligned formatting, and document parameters, returns, and exceptions when they add useful information.
+* `@inheritDoc` may be used when extending inherited documentation.
+* Short member documentation may use single-line Javadoc.
+* Indent comments consistently with surrounding code; trailing comments are allowed. 
 

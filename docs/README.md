@@ -41,4 +41,4 @@ tasks remain in the list.
 
 ## AI Use Declaration
 
-As my intended career path is NOT related to software engineering, I choose AI-5 as my AI use level, where I get Codex to do the tasks, and then I myself review the results fully, including the code, tests, behavior etc.
+As my intended career path is NOT related to software engineering, I choose AI-5 as my AI use level, where I get Codex to do the tasks, and then I myself review the results.

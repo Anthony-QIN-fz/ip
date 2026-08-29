@@ -1,3 +1,4 @@
+import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,7 @@ public class Olaf {
     private static final String DIVIDER = "_".repeat(60);
     private static final String GREETING = "Hello! I'm Olaf. What can I do for you?";
     private static final String FAREWELL = "Bye. Hope to see you again soon!";
+    private static final Path DATA_FILE_PATH = Path.of("data", "olaf.txt");
     private static final String EXIT_COMMAND = "bye";
     private static final String LIST_COMMAND = "list";
     private static final String MARK_COMMAND = "mark";
@@ -40,7 +42,13 @@ public class Olaf {
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.";
 
-    private final TaskList tasks = new TaskList();
+    private final Storage storage;
+    private final TaskList tasks;
+
+    private Olaf(Storage storage, TaskList tasks) {
+        this.storage = storage;
+        this.tasks = tasks;
+    }
 
     /**
      * Starts Olaf's command loop.
@@ -48,7 +56,13 @@ public class Olaf {
      * @param args command-line arguments, which Olaf does not use
      */
     public static void main(String[] args) {
-        new Olaf().run();
+        Storage storage = new Storage(DATA_FILE_PATH);
+        try {
+            TaskList tasks = storage.load();
+            new Olaf(storage, tasks).run();
+        } catch (StorageException exception) {
+            printStartupError(exception.getMessage());
+        }
     }
 
     private void run() {
@@ -60,12 +74,17 @@ public class Olaf {
                     printFarewell();
                     return;
                 }
-                handleCommand(command);
+                try {
+                    handleCommand(command);
+                } catch (StorageException exception) {
+                    printError(exception.getMessage());
+                    return;
+                }
             }
         }
     }
 
-    private void handleCommand(String command) {
+    private void handleCommand(String command) throws StorageException {
         if (isListCommand(command)) {
             printTaskList();
             return;
@@ -98,7 +117,7 @@ public class Olaf {
         printError(UNKNOWN_COMMAND_MESSAGE);
     }
 
-    private void handleTodoCommand(String command) {
+    private void handleTodoCommand(String command) throws StorageException {
         String description = getCommandArguments(command);
         if (description.isEmpty()) {
             printError(INVALID_TODO_COMMAND_MESSAGE);
@@ -107,7 +126,7 @@ public class Olaf {
         addTask(new Todo(description));
     }
 
-    private void handleDeadlineCommand(String command) {
+    private void handleDeadlineCommand(String command) throws StorageException {
         String arguments = getCommandArguments(command);
         int byMarkerIndex = findMarker(arguments, BY_MARKER);
         if (byMarkerIndex < 0) {
@@ -124,7 +143,7 @@ public class Olaf {
         addTask(new Deadline(description, by));
     }
 
-    private void handleEventCommand(String command) {
+    private void handleEventCommand(String command) throws StorageException {
         String arguments = getCommandArguments(command);
         int fromMarkerIndex = findMarker(arguments, FROM_MARKER);
         int toMarkerIndex = findMarker(arguments, TO_MARKER);
@@ -143,8 +162,9 @@ public class Olaf {
         addTask(new Event(description, from, to));
     }
 
-    private void addTask(Task task) {
+    private void addTask(Task task) throws StorageException {
         tasks.add(task);
+        storage.save(tasks);
         String taskWord = tasks.size() == 1 ? "task" : "tasks";
         printMessage(" Got it. I've added this task:\n   " + task
                 + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
@@ -162,7 +182,7 @@ public class Olaf {
         return matcher.find() ? matcher.start() : -1;
     }
 
-    private void handleUnmarkCommand(String command) {
+    private void handleUnmarkCommand(String command) throws StorageException {
         String[] commandParts = command.trim().split("\\s+");
         if (commandParts.length != 2) {
             printError(INVALID_UNMARK_COMMAND_MESSAGE);
@@ -172,6 +192,7 @@ public class Olaf {
         try {
             int taskNumber = Integer.parseInt(commandParts[1]);
             Task unmarkedTask = tasks.markAsNotDone(taskNumber);
+            storage.save(tasks);
             printMessage(" OK, I've marked this task as not done yet:\n   " + unmarkedTask);
         } catch (NumberFormatException exception) {
             printError(INVALID_UNMARK_COMMAND_MESSAGE);
@@ -180,7 +201,7 @@ public class Olaf {
         }
     }
 
-    private void handleMarkCommand(String command) {
+    private void handleMarkCommand(String command) throws StorageException {
         String[] commandParts = command.trim().split("\\s+");
         if (commandParts.length != 2) {
             printError(INVALID_MARK_COMMAND_MESSAGE);
@@ -190,6 +211,7 @@ public class Olaf {
         try {
             int taskNumber = Integer.parseInt(commandParts[1]);
             Task markedTask = tasks.markAsDone(taskNumber);
+            storage.save(tasks);
             printMessage(" Nice! I've marked this task as done:\n   " + markedTask);
         } catch (NumberFormatException exception) {
             printError(INVALID_MARK_COMMAND_MESSAGE);
@@ -198,7 +220,7 @@ public class Olaf {
         }
     }
 
-    private void handleDeleteCommand(String command) {
+    private void handleDeleteCommand(String command) throws StorageException {
         String[] commandParts = command.trim().split("\\s+");
         if (commandParts.length != 2) {
             printError(INVALID_DELETE_COMMAND_MESSAGE);
@@ -208,6 +230,7 @@ public class Olaf {
         try {
             int taskNumber = Integer.parseInt(commandParts[1]);
             Task deletedTask = tasks.delete(taskNumber);
+            storage.save(tasks);
             String taskWord = tasks.size() == 1 ? "task" : "tasks";
             printMessage(" Noted. I've removed this task:\n   " + deletedTask
                     + "\n Now you have " + tasks.size() + " " + taskWord + " in the list.");
@@ -271,5 +294,11 @@ public class Olaf {
 
     private void printError(String message) {
         printMessage("error: " + message);
+    }
+
+    private static void printStartupError(String message) {
+        System.out.println(DIVIDER);
+        System.out.println("error: " + message);
+        System.out.println(DIVIDER);
     }
 }

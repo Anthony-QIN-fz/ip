@@ -1,0 +1,2 @@
+D | 0 | playing | Monday
+E | 1 | barking | 9am | 8pm

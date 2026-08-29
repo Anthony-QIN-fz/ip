@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * Represents a task that takes place between a given start and end.
  */
@@ -9,6 +11,16 @@ final class Event extends Task {
         super(description);
         this.from = from;
         this.to = to;
+    }
+
+    @Override
+    String getTypeCode() {
+        return "E";
+    }
+
+    @Override
+    List<String> getAdditionalStorageFields() {
+        return List.of(from, to);
     }
 
     @Override

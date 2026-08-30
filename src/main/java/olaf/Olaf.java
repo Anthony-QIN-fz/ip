@@ -23,7 +23,7 @@ public class Olaf {
     /**
      * Starts Olaf's command loop.
      *
-     * @param args command-line arguments, which Olaf does not use
+     * @param args command-line arguments, which Olaf does not use.
      */
     public static void main(String[] args) {
         Storage storage = new Storage(DATA_FILE_PATH);
@@ -43,7 +43,7 @@ public class Olaf {
         while (ui.hasNextCommand()) {
             try {
                 ParsedCommand command = parser.parse(ui.readCommand());
-                if (execute(command)) {
+                if (shouldExitAfterExecuting(command)) {
                     return;
                 }
             } catch (CommandParseException | InvalidTaskNumberException exception) {
@@ -58,34 +58,34 @@ public class Olaf {
     /**
      * Executes a validated command.
      *
-     * @param command command to execute
+     * @param command command to execute.
      * @return true if Olaf should exit after executing the command
      * @throws InvalidTaskNumberException if the command refers to a nonexistent task
      * @throws StorageException if a changed task list cannot be saved
      */
-    private boolean execute(ParsedCommand command)
+    private boolean shouldExitAfterExecuting(ParsedCommand command)
             throws InvalidTaskNumberException, StorageException {
         switch (command.getAction()) {
-        case EXIT:
-            ui.showFarewell();
-            return true;
-        case LIST:
-            ui.showTaskList(tasks);
-            break;
-        case ADD:
-            addTask(command.getTask());
-            break;
-        case MARK:
-            markTask(command.getTaskNumber());
-            break;
-        case UNMARK:
-            unmarkTask(command.getTaskNumber());
-            break;
-        case DELETE:
-            deleteTask(command.getTaskNumber());
-            break;
-        default:
-            throw new IllegalStateException("Unsupported command action: " + command.getAction());
+            case EXIT:
+                ui.showFarewell();
+                return true;
+            case LIST:
+                ui.showTaskList(tasks);
+                break;
+            case ADD:
+                addTask(command.getTask());
+                break;
+            case MARK:
+                markTask(command.getTaskNumber());
+                break;
+            case UNMARK:
+                unmarkTask(command.getTaskNumber());
+                break;
+            case DELETE:
+                deleteTask(command.getTaskNumber());
+                break;
+            default:
+                throw new IllegalStateException("Unsupported command action: " + command.getAction());
         }
         return false;
     }

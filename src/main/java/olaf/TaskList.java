@@ -15,7 +15,7 @@ final class TaskList {
     /**
      * Creates a task list containing a defensive copy of the supplied tasks.
      *
-     * @param initialTasks tasks loaded from storage
+     * @param initialTasks tasks loaded from storage.
      */
     TaskList(List<Task> initialTasks) {
         tasks.addAll(initialTasks);
@@ -24,7 +24,7 @@ final class TaskList {
     /**
      * Adds the supplied task to the end of the list.
      *
-     * @param task task to add
+     * @param task task to add.
      */
     void add(Task task) {
         tasks.add(task);
@@ -33,7 +33,7 @@ final class TaskList {
     /**
      * Marks the task identified by its user-facing number as done.
      *
-     * @param taskNumber one-based task number shown by the list command
+     * @param taskNumber one-based task number shown by the list command.
      * @return the task that was marked
      * @throws InvalidTaskNumberException if no task has the supplied number
      */
@@ -46,7 +46,7 @@ final class TaskList {
     /**
      * Marks the task identified by its user-facing number as not done.
      *
-     * @param taskNumber one-based task number shown by the list command
+     * @param taskNumber one-based task number shown by the list command.
      * @return the task that was marked as not done
      * @throws InvalidTaskNumberException if no task has the supplied number
      */
@@ -59,7 +59,7 @@ final class TaskList {
     /**
      * Deletes the task identified by its user-facing number.
      *
-     * @param taskNumber one-based task number shown by the list command
+     * @param taskNumber one-based task number shown by the list command.
      * @return the deleted task
      * @throws InvalidTaskNumberException if no task has the supplied number
      */

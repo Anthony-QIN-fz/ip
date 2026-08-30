@@ -29,10 +29,10 @@ final class ParsedCommand {
     /**
      * Creates a command that does not require an additional value.
      *
-     * @param action exit or list action
+     * @param action exit or list action.
      * @return parsed command with no payload
      */
-    static ParsedCommand withoutPayload(Action action) {
+    static ParsedCommand createWithoutPayload(Action action) {
         if (action != Action.EXIT && action != Action.LIST) {
             throw new IllegalArgumentException("Only exit and list commands have no payload.");
         }
@@ -42,7 +42,7 @@ final class ParsedCommand {
     /**
      * Creates a command that adds the supplied task.
      *
-     * @param task task to add
+     * @param task task to add.
      * @return parsed add command
      */
     static ParsedCommand add(Task task) {
@@ -52,11 +52,11 @@ final class ParsedCommand {
     /**
      * Creates a command that operates on a user-facing task number.
      *
-     * @param action mark, unmark, or delete action
-     * @param taskNumber one-based task number supplied by the user
+     * @param action mark, unmark, or delete action.
+     * @param taskNumber one-based task number supplied by the user.
      * @return parsed task-number command
      */
-    static ParsedCommand forTaskNumber(Action action, int taskNumber) {
+    static ParsedCommand createForTaskNumber(Action action, int taskNumber) {
         if (action != Action.MARK && action != Action.UNMARK && action != Action.DELETE) {
             throw new IllegalArgumentException("The action does not accept a task number.");
         }

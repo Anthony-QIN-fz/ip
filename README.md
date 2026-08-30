@@ -60,6 +60,7 @@ Olaf stores ToDos, deadlines, and events across application sessions. Add them w
 format; Olaf displays them in `MMM dd yyyy` format.
 Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
 `unmark <task number>` to mark a task as not done, `delete <task number>` to remove a task,
+`find <keyword>` to display tasks whose descriptions contain the keyword (ignoring case),
 or `bye` to exit. A typical session looks like this:
 
 Olaf loads tasks from `data/olaf.txt` when it starts and automatically saves the file whenever
@@ -98,6 +99,12 @@ the task list changes. The `data` directory and file are created on the first ta
     1.[T][ ] read book
     2.[D][ ] return book (by: Oct 15 2019)
     3.[E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)
+   ____________________________________________________________
+   find book
+   ____________________________________________________________
+    Here are the matching tasks in your list:
+    1.[T][ ] read book
+    2.[D][ ] return book (by: Oct 15 2019)
    ____________________________________________________________
    mark 2
    ____________________________________________________________

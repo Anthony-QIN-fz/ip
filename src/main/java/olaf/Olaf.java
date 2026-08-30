@@ -72,6 +72,9 @@ public class Olaf {
         case LIST:
             ui.showTaskList(tasks);
             break;
+        case FIND:
+            ui.showMatchingTasks(tasks.find(command.getKeyword()));
+            break;
         case ADD:
             addTask(command.getTask());
             break;

@@ -2,6 +2,7 @@ package olaf;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -55,8 +56,21 @@ final class Ui implements AutoCloseable {
     }
 
     void showTaskList(TaskList tasks) {
+        showTasks(" Here are the tasks in your list:", tasks.getTasks());
+    }
+
+    /**
+     * Displays tasks that match a find command, numbered within the filtered results.
+     *
+     * @param matchingTasks matching tasks in display order
+     */
+    void showMatchingTasks(List<Task> matchingTasks) {
+        showTasks(" Here are the matching tasks in your list:", matchingTasks);
+    }
+
+    private void showTasks(String heading, List<Task> tasks) {
         output.println(DIVIDER);
-        output.println(" Here are the tasks in your list:");
+        output.println(heading);
         for (int index = 0; index < tasks.size(); index++) {
             output.println(" " + (index + 1) + "." + tasks.get(index));
         }

@@ -13,7 +13,21 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    1. If there are any further prompts, accept the defaults.
 1. Configure the project to use **JDK 25** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
    In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
+
+## Running in Visual Studio Code
+
+Prerequisites: JDK 25 and Microsoft's
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack).
+
+1. Open the project root folder in Visual Studio Code.
+1. Use `Java: Configure Java Runtime` from the Command Palette to select **JDK 25**.
+1. Open `src/main/java/olaf/Olaf.java`.
+1. Click the Java **Run** link above the `main` method, or press `F5`.
+1. After Olaf displays its welcome message, enter `bye` to verify that it runs and exits normally.
+
+Do not use the generic **Run Code** command provided by the Code Runner extension. It compiles
+only the active file and cannot resolve the other classes in the `olaf` package. See the
+[official VS Code Java guide](https://code.visualstudio.com/docs/java/java-tutorial) for more details.
 
 Olaf stores ToDos, deadlines, and events across application sessions. Add them with
 `todo <description>`, `deadline <description> /by <yyyy-MM-dd>`, or

@@ -3,6 +3,21 @@
 Olaf is a command-line chatbot that tracks ToDos, deadlines, and events across sessions.
 Enter deadline and event dates in `yyyy-MM-dd` format. Olaf displays them as `MMM dd yyyy`.
 
+## Running in Visual Studio Code
+
+Prerequisites: JDK 25 and Microsoft's
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack).
+
+1. Open the project root folder in Visual Studio Code.
+1. Use `Java: Configure Java Runtime` from the Command Palette to select **JDK 25**.
+1. Open `src/main/java/olaf/Olaf.java`.
+1. Click the Java **Run** link above the `main` method, or press `F5`.
+1. After Olaf displays its welcome message, enter `bye` to verify that it runs and exits normally.
+
+Do not use the generic **Run Code** command provided by the Code Runner extension. It compiles
+only the active file and cannot resolve the other classes in the `olaf` package. See the
+[official VS Code Java guide](https://code.visualstudio.com/docs/java/java-tutorial) for more details.
+
 ## Adding ToDos
 
 Use `todo <description>` for a task without a date or time.

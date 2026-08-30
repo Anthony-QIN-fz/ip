@@ -1,3 +1,5 @@
+package olaf;
+
 /**
  * Signals that Olaf could not load or save its task data safely.
  */

@@ -1,3 +1,5 @@
+package olaf;
+
 /**
  * Signals that a user command cannot be understood or does not follow the required syntax.
  */

@@ -1,3 +1,5 @@
+package olaf;
+
 /**
  * Signals that a command refers to a task number that does not exist.
  */

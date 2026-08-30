@@ -27,10 +27,20 @@ abstract class Task {
         isDone = false;
     }
 
+    /**
+     * Returns this task's description.
+     *
+     * @return task description
+     */
     String getDescription() {
         return description;
     }
 
+    /**
+     * Returns whether this task has been completed.
+     *
+     * @return true if this task is completed
+     */
     boolean isDone() {
         return isDone;
     }
@@ -49,6 +59,7 @@ abstract class Task {
      */
     abstract List<String> getAdditionalStorageFields();
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;

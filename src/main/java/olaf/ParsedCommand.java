@@ -63,10 +63,21 @@ final class ParsedCommand {
         return new ParsedCommand(action, null, taskNumber);
     }
 
+    /**
+     * Returns the operation represented by this command.
+     *
+     * @return command action
+     */
     Action getAction() {
         return action;
     }
 
+    /**
+     * Returns the task carried by an add command.
+     *
+     * @return task to add
+     * @throws IllegalStateException if this is not an add command
+     */
     Task getTask() {
         if (action != Action.ADD) {
             throw new IllegalStateException("Only an add command contains a task.");
@@ -74,6 +85,12 @@ final class ParsedCommand {
         return task;
     }
 
+    /**
+     * Returns the user-facing task number carried by this command.
+     *
+     * @return one-based task number
+     * @throws IllegalStateException if this command does not operate on a task number
+     */
     int getTaskNumber() {
         if (action != Action.MARK && action != Action.UNMARK && action != Action.DELETE) {
             throw new IllegalStateException("This command does not contain a task number.");

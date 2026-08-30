@@ -14,16 +14,19 @@ final class Deadline extends Task {
         this.dueDate = dueDate;
     }
 
+    /** {@inheritDoc} */
     @Override
     String getTypeCode() {
         return "D";
     }
 
+    /** {@inheritDoc} */
     @Override
     List<String> getAdditionalStorageFields() {
         return List.of(dueDate.toString());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "[D]" + super.toString() + " (by: " + TaskDateFormat.format(dueDate) + ")";

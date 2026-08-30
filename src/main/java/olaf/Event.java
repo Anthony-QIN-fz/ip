@@ -16,16 +16,19 @@ final class Event extends Task {
         this.endDate = endDate;
     }
 
+    /** {@inheritDoc} */
     @Override
     String getTypeCode() {
         return "E";
     }
 
+    /** {@inheritDoc} */
     @Override
     List<String> getAdditionalStorageFields() {
         return List.of(startDate.toString(), endDate.toString());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + TaskDateFormat.format(startDate)

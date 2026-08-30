@@ -40,7 +40,7 @@ Make sure your code follows the OOP principle. e.g., at least some use of inheri
 
 Make sure your code follows the Java coding standard in the next section.
 
-Make sure at least half of the public methods/classes have Javadoc comments.
+Make sure ALL the public methods/classes have Javadoc comments.
 
 You must provide reasonable code quality as follows:
 * No blatant violations of the coding standard (both Java and Git conventions).

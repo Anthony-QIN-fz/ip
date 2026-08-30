@@ -1,16 +1,17 @@
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * Represents a task that takes place between a given start and end.
  */
 final class Event extends Task {
-    private final String from;
-    private final String to;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
-    Event(String description, String from, String to) {
+    Event(String description, LocalDate startDate, LocalDate endDate) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     @Override
@@ -20,11 +21,12 @@ final class Event extends Task {
 
     @Override
     List<String> getAdditionalStorageFields() {
-        return List.of(from, to);
+        return List.of(startDate.toString(), endDate.toString());
     }
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString() + " (from: " + TaskDateFormat.format(startDate)
+                + " to: " + TaskDateFormat.format(endDate) + ")";
     }
 }

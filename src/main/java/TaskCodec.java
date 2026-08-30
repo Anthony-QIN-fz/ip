@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,16 +72,28 @@ final class TaskCodec {
     private Task decodeDeadline(List<String> fields, int lineNumber) throws StorageException {
         validateFields(fields, 4, lineNumber);
         String description = requireText(fields.get(2), "description", lineNumber);
-        String by = requireText(fields.get(3), "deadline", lineNumber);
+        LocalDate by = parseDate(requireText(fields.get(3), "deadline", lineNumber),
+                "deadline", lineNumber);
         return new Deadline(description, by);
     }
 
     private Task decodeEvent(List<String> fields, int lineNumber) throws StorageException {
         validateFields(fields, 5, lineNumber);
         String description = requireText(fields.get(2), "description", lineNumber);
-        String from = requireText(fields.get(3), "event start", lineNumber);
-        String to = requireText(fields.get(4), "event end", lineNumber);
+        LocalDate from = parseDate(requireText(fields.get(3), "event start", lineNumber),
+                "event start", lineNumber);
+        LocalDate to = parseDate(requireText(fields.get(4), "event end", lineNumber),
+                "event end", lineNumber);
         return new Event(description, from, to);
+    }
+
+    private LocalDate parseDate(String value, String fieldName, int lineNumber)
+            throws StorageException {
+        try {
+            return TaskDateFormat.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw invalidRecord(lineNumber, fieldName + " must use yyyy-MM-dd");
+        }
     }
 
     private List<String> splitFields(String record, int lineNumber) throws StorageException {

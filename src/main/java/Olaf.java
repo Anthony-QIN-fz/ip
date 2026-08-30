@@ -1,4 +1,6 @@
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,9 +38,9 @@ public class Olaf {
     private static final String INVALID_TODO_COMMAND_MESSAGE =
             "Use 'todo <description>' to add a ToDo.";
     private static final String INVALID_DEADLINE_COMMAND_MESSAGE =
-            "Use 'deadline <description> /by <date or time>' to add a deadline.";
+            "Use 'deadline <description> /by <yyyy-MM-dd>' to add a deadline.";
     private static final String INVALID_EVENT_COMMAND_MESSAGE =
-            "Use 'event <description> /from <start> /to <end>' to add an event.";
+            "Use 'event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>' to add an event.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.";
 
@@ -140,7 +142,13 @@ public class Olaf {
             printError(INVALID_DEADLINE_COMMAND_MESSAGE);
             return;
         }
-        addTask(new Deadline(description, by));
+
+        try {
+            LocalDate byDate = TaskDateFormat.parse(by);
+            addTask(new Deadline(description, byDate));
+        } catch (DateTimeParseException exception) {
+            printError(INVALID_DEADLINE_COMMAND_MESSAGE);
+        }
     }
 
     private void handleEventCommand(String command) throws StorageException {
@@ -159,7 +167,14 @@ public class Olaf {
             printError(INVALID_EVENT_COMMAND_MESSAGE);
             return;
         }
-        addTask(new Event(description, from, to));
+
+        try {
+            LocalDate fromDate = TaskDateFormat.parse(from);
+            LocalDate toDate = TaskDateFormat.parse(to);
+            addTask(new Event(description, fromDate, toDate));
+        } catch (DateTimeParseException exception) {
+            printError(INVALID_EVENT_COMMAND_MESSAGE);
+        }
     }
 
     private void addTask(Task task) throws StorageException {

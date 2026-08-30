@@ -35,14 +35,27 @@ final class Ui implements AutoCloseable {
         this.output = output;
     }
 
+    /**
+     * Returns whether another command is available from the input stream.
+     *
+     * @return true if another command can be read
+     */
     boolean hasNextCommand() {
         return scanner.hasNextLine();
     }
 
+    /**
+     * Reads the next command from the input stream.
+     *
+     * @return next command entered by the user
+     */
     String readCommand() {
         return scanner.nextLine();
     }
 
+    /**
+     * Displays Olaf's banner and greeting.
+     */
     void showWelcome() {
         output.println(BANNER);
         output.println();
@@ -50,10 +63,18 @@ final class Ui implements AutoCloseable {
         output.println(DIVIDER);
     }
 
+    /**
+     * Displays Olaf's farewell message.
+     */
     void showFarewell() {
         showMessage(FAREWELL);
     }
 
+    /**
+     * Displays every task in the supplied list with its user-facing number.
+     *
+     * @param tasks task list to display
+     */
     void showTaskList(TaskList tasks) {
         output.println(DIVIDER);
         output.println(" Here are the tasks in your list:");
@@ -63,30 +84,58 @@ final class Ui implements AutoCloseable {
         output.println(DIVIDER);
     }
 
+    /**
+     * Displays confirmation that a task was added.
+     *
+     * @param task added task
+     * @param taskCount number of tasks after the addition
+     */
     void showTaskAdded(Task task, int taskCount) {
         String taskWord = taskCount == 1 ? "task" : "tasks";
         showMessage(" Got it. I've added this task:\n   " + task
                 + "\n Now you have " + taskCount + " " + taskWord + " in the list.");
     }
 
+    /**
+     * Displays confirmation that a task was marked as done.
+     *
+     * @param task task that was marked
+     */
     void showTaskMarkedAsDone(Task task) {
         showMessage(" Nice! I've marked this task as done:\n   " + task);
     }
 
+    /**
+     * Displays confirmation that a task was marked as not done.
+     *
+     * @param task task that was unmarked
+     */
     void showTaskMarkedAsNotDone(Task task) {
         showMessage(" OK, I've marked this task as not done yet:\n   " + task);
     }
 
+    /**
+     * Displays confirmation that a task was deleted.
+     *
+     * @param task deleted task
+     * @param taskCount number of tasks after the deletion
+     */
     void showTaskDeleted(Task task, int taskCount) {
         String taskWord = taskCount == 1 ? "task" : "tasks";
         showMessage(" Noted. I've removed this task:\n   " + task
                 + "\n Now you have " + taskCount + " " + taskWord + " in the list.");
     }
 
+    /**
+     * Displays an error message to the user.
+     *
+     * @param message error details to display
+     */
     void showError(String message) {
         showMessage("error: " + message);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         scanner.close();

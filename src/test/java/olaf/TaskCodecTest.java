@@ -19,6 +19,9 @@ class TaskCodecTest {
 
     private final TaskCodec taskCodec = new TaskCodec();
 
+    /**
+     * Verifies that an incomplete to-do task is encoded correctly.
+     */
     @Test
     void encode_todoNotDone_correctRecordReturned() {
         Task task = new Todo("read book");
@@ -26,6 +29,9 @@ class TaskCodecTest {
         assertEquals("T | 0 | read book", taskCodec.encode(task));
     }
 
+    /**
+     * Verifies that a completed deadline is encoded correctly.
+     */
     @Test
     void encode_deadlineDone_correctRecordReturned() {
         Task task = new Deadline("return book", LocalDate.of(2019, 10, 15));
@@ -34,6 +40,9 @@ class TaskCodecTest {
         assertEquals("D | 1 | return book | 2019-10-15", taskCodec.encode(task));
     }
 
+    /**
+     * Verifies that an incomplete event is encoded correctly.
+     */
     @Test
     void encode_eventNotDone_correctRecordReturned() {
         Task task = new Event("project meeting", LocalDate.of(2019, 10, 20),
@@ -43,6 +52,9 @@ class TaskCodecTest {
                 taskCodec.encode(task));
     }
 
+    /**
+     * Verifies that reserved characters in descriptions are escaped during encoding.
+     */
     @Test
     void encode_descriptionContainsReservedCharacters_charactersEscaped() {
         Task task = new Todo("review | chapter \\ notes");
@@ -50,6 +62,9 @@ class TaskCodecTest {
         assertEquals("T | 0 | review \\| chapter \\\\ notes", taskCodec.encode(task));
     }
 
+    /**
+     * Verifies that an incomplete to-do record is decoded correctly.
+     */
     @Test
     void decode_todoNotDone_correctTaskReturned() throws StorageException {
         Task task = taskCodec.decode("T | 0 | read book", DEFAULT_LINE_NUMBER);
@@ -60,6 +75,9 @@ class TaskCodecTest {
         assertEquals(List.of(), task.getAdditionalStorageFields());
     }
 
+    /**
+     * Verifies that a completed deadline record is decoded correctly.
+     */
     @Test
     void decode_deadlineDone_correctTaskReturned() throws StorageException {
         Task task = taskCodec.decode("D | 1 | return book | 2019-10-15",
@@ -71,6 +89,9 @@ class TaskCodecTest {
         assertEquals(List.of("2019-10-15"), task.getAdditionalStorageFields());
     }
 
+    /**
+     * Verifies that an incomplete event record is decoded correctly.
+     */
     @Test
     void decode_eventNotDone_correctTaskReturned() throws StorageException {
         Task task = taskCodec.decode(
@@ -84,6 +105,9 @@ class TaskCodecTest {
                 task.getAdditionalStorageFields());
     }
 
+    /**
+     * Verifies that escaped characters in descriptions are restored during decoding.
+     */
     @Test
     void decode_descriptionContainsEscapedCharacters_charactersUnescaped()
             throws StorageException {
@@ -93,6 +117,9 @@ class TaskCodecTest {
         assertEquals("review | chapter \\ notes", task.getDescription());
     }
 
+    /**
+     * Verifies that field whitespace is trimmed during decoding.
+     */
     @Test
     void decode_separatorWhitespaceVaries_fieldsTrimmed() throws StorageException {
         Task task = taskCodec.decode("  T| 0 |  read book  ", DEFAULT_LINE_NUMBER);
@@ -102,23 +129,35 @@ class TaskCodecTest {
         assertFalse(task.isDone());
     }
 
+    /**
+     * Verifies that a record missing its task type or status is rejected.
+     */
     @Test
     void decode_taskTypeOrStatusMissing_storageExceptionThrown() {
         assertInvalidRecord("T", 7, "missing task type or status");
     }
 
+    /**
+     * Verifies that an unknown task type is rejected.
+     */
     @Test
     void decode_unknownTaskType_storageExceptionThrown() {
         assertInvalidRecord("X | 0 | read book", DEFAULT_LINE_NUMBER,
                 "unknown task type 'X'");
     }
 
+    /**
+     * Verifies that an invalid completion status is rejected.
+     */
     @Test
     void decode_invalidStatus_storageExceptionThrown() {
         assertInvalidRecord("T | 2 | read book", DEFAULT_LINE_NUMBER,
                 "status must be 0 or 1");
     }
 
+    /**
+     * Verifies that records with an incorrect number of fields are rejected.
+     */
     @Test
     void decode_incorrectFieldCount_storageExceptionThrown() {
         assertInvalidRecord("T | 0", DEFAULT_LINE_NUMBER, "incorrect number of fields");
@@ -135,6 +174,9 @@ class TaskCodecTest {
                 DEFAULT_LINE_NUMBER, "incorrect number of fields");
     }
 
+    /**
+     * Verifies that records containing blank required fields are rejected.
+     */
     @Test
     void decode_requiredFieldBlank_storageExceptionThrown() {
         assertInvalidRecord("T | 0 | ", DEFAULT_LINE_NUMBER, "description cannot be empty");
@@ -150,6 +192,9 @@ class TaskCodecTest {
                 DEFAULT_LINE_NUMBER, "event end cannot be empty");
     }
 
+    /**
+     * Verifies that records containing invalid dates are rejected.
+     */
     @Test
     void decode_dateInvalid_storageExceptionThrown() {
         assertInvalidRecord("D | 0 | return book | 15-10-2019", DEFAULT_LINE_NUMBER,
@@ -162,12 +207,18 @@ class TaskCodecTest {
                 DEFAULT_LINE_NUMBER, "event end must use yyyy-MM-dd");
     }
 
+    /**
+     * Verifies that an unsupported escape sequence is rejected.
+     */
     @Test
     void decode_escapeSequenceInvalid_storageExceptionThrown() {
         assertInvalidRecord("T | 0 | bad \\q escape", DEFAULT_LINE_NUMBER,
                 "invalid escape sequence");
     }
 
+    /**
+     * Verifies that an unfinished escape sequence is rejected.
+     */
     @Test
     void decode_escapeSequenceUnfinished_storageExceptionThrown() {
         assertInvalidRecord("T | 0 | trailing \\", DEFAULT_LINE_NUMBER,

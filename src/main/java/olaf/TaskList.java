@@ -68,10 +68,22 @@ final class TaskList {
         return tasks.remove(taskNumber - 1);
     }
 
+    /**
+     * Returns the number of tasks in this list.
+     *
+     * @return task count
+     */
     int size() {
         return tasks.size();
     }
 
+    /**
+     * Returns the task at the supplied zero-based index.
+     *
+     * @param index zero-based position in the list
+     * @return task at the supplied index
+     * @throws IndexOutOfBoundsException if the index is outside the list
+     */
     Task get(int index) {
         return tasks.get(index);
     }

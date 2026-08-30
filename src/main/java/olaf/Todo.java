@@ -10,16 +10,19 @@ final class Todo extends Task {
         super(description);
     }
 
+    /** {@inheritDoc} */
     @Override
     String getTypeCode() {
         return "T";
     }
 
+    /** {@inheritDoc} */
     @Override
     List<String> getAdditionalStorageFields() {
         return List.of();
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "[T]" + super.toString();

@@ -39,6 +39,21 @@ In Visual Studio Code, use `Java: Configure Java Runtime` from the Command Palet
 **JDK 25**. Do not launch Olaf with Code Runner's **Run Code** command, the Java **Run** link,
 or `F5`; use the Gradle wrapper command above so the complete project is built and launched.
 
+## Running tests
+
+From the project root, run the test suite with the command for your operating system and terminal:
+
+| Environment | Command |
+|---|---|
+| Windows PowerShell | `.\gradlew.bat test` |
+| Windows Command Prompt | `gradlew.bat test` |
+| macOS/Linux with Bash, Zsh, Fish, or PowerShell | `./gradlew test` |
+| Git Bash or WSL | `./gradlew test` |
+
+The suite tests task encoding and decoding, including escaped characters and malformed storage
+records. A successful run ends with `BUILD SUCCESSFUL`, and the HTML report is generated at
+`build/reports/tests/test/index.html`.
+
 Olaf stores ToDos, deadlines, and events across application sessions. Add them with
 `todo <description>`, `deadline <description> /by <yyyy-MM-dd>`, or
 `event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>`. Enter dates in `yyyy-MM-dd`

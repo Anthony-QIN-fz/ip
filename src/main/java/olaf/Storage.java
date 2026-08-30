@@ -45,7 +45,7 @@ final class Storage {
     /**
      * Saves a complete snapshot of the task list, creating its parent directory when needed.
      *
-     * @param tasks task list to save
+     * @param tasks task list to save.
      * @throws StorageException if the directory or data file cannot be written
      */
     void save(TaskList tasks) throws StorageException {

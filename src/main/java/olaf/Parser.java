@@ -10,17 +10,17 @@ import java.util.regex.Pattern;
  * Parses user input into validated commands that Olaf can execute.
  */
 final class Parser {
-    private static final String EXIT_COMMAND = "bye";
-    private static final String LIST_COMMAND = "list";
-    private static final String MARK_COMMAND = "mark";
-    private static final String UNMARK_COMMAND = "unmark";
-    private static final String DELETE_COMMAND = "delete";
-    private static final String TODO_COMMAND = "todo";
-    private static final String DEADLINE_COMMAND = "deadline";
-    private static final String EVENT_COMMAND = "event";
-    private static final String BY_MARKER = "/by";
-    private static final String FROM_MARKER = "/from";
-    private static final String TO_MARKER = "/to";
+    private static final String COMMAND_EXIT = "bye";
+    private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_MARK = "mark";
+    private static final String COMMAND_UNMARK = "unmark";
+    private static final String COMMAND_DELETE = "delete";
+    private static final String COMMAND_TODO = "todo";
+    private static final String COMMAND_DEADLINE = "deadline";
+    private static final String COMMAND_EVENT = "event";
+    private static final String MARKER_BY = "/by";
+    private static final String MARKER_FROM = "/from";
+    private static final String MARKER_TO = "/to";
     private static final String INVALID_MARK_COMMAND_MESSAGE =
             "Use 'mark <task number>' to mark a task as done.";
     private static final String INVALID_UNMARK_COMMAND_MESSAGE =
@@ -39,30 +39,30 @@ final class Parser {
     /**
      * Parses one line of user input.
      *
-     * @param input raw command entered by the user
+     * @param input raw command entered by the user.
      * @return validated command and its required data
      * @throws CommandParseException if the input is unknown or malformed
      */
     ParsedCommand parse(String input) throws CommandParseException {
         String trimmedInput = input.trim();
-        if (trimmedInput.equalsIgnoreCase(EXIT_COMMAND)) {
-            return ParsedCommand.withoutPayload(ParsedCommand.Action.EXIT);
+        if (trimmedInput.equalsIgnoreCase(COMMAND_EXIT)) {
+            return ParsedCommand.createWithoutPayload(ParsedCommand.Action.EXIT);
         }
-        if (trimmedInput.equalsIgnoreCase(LIST_COMMAND)) {
-            return ParsedCommand.withoutPayload(ParsedCommand.Action.LIST);
+        if (trimmedInput.equalsIgnoreCase(COMMAND_LIST)) {
+            return ParsedCommand.createWithoutPayload(ParsedCommand.Action.LIST);
         }
 
         String commandWord = getCommandWord(trimmedInput).toLowerCase(Locale.ROOT);
         return switch (commandWord) {
-            case MARK_COMMAND -> parseTaskNumberCommand(
+            case COMMAND_MARK -> parseTaskNumberCommand(
                     input, ParsedCommand.Action.MARK, INVALID_MARK_COMMAND_MESSAGE);
-            case UNMARK_COMMAND -> parseTaskNumberCommand(
+            case COMMAND_UNMARK -> parseTaskNumberCommand(
                     input, ParsedCommand.Action.UNMARK, INVALID_UNMARK_COMMAND_MESSAGE);
-            case DELETE_COMMAND -> parseTaskNumberCommand(
+            case COMMAND_DELETE -> parseTaskNumberCommand(
                     input, ParsedCommand.Action.DELETE, INVALID_DELETE_COMMAND_MESSAGE);
-            case TODO_COMMAND -> parseTodoCommand(input);
-            case DEADLINE_COMMAND -> parseDeadlineCommand(input);
-            case EVENT_COMMAND -> parseEventCommand(input);
+            case COMMAND_TODO -> parseTodoCommand(input);
+            case COMMAND_DEADLINE -> parseDeadlineCommand(input);
+            case COMMAND_EVENT -> parseEventCommand(input);
             default -> throw new CommandParseException(UNKNOWN_COMMAND_MESSAGE);
         };
     }
@@ -76,7 +76,7 @@ final class Parser {
 
         try {
             int taskNumber = Integer.parseInt(commandParts[1]);
-            return ParsedCommand.forTaskNumber(action, taskNumber);
+            return ParsedCommand.createForTaskNumber(action, taskNumber);
         } catch (NumberFormatException exception) {
             throw new CommandParseException(invalidCommandMessage);
         }
@@ -92,13 +92,13 @@ final class Parser {
 
     private ParsedCommand parseDeadlineCommand(String input) throws CommandParseException {
         String arguments = getCommandArguments(input);
-        int byMarkerIndex = findMarker(arguments, BY_MARKER);
+        int byMarkerIndex = findMarker(arguments, MARKER_BY);
         if (byMarkerIndex < 0) {
             throw new CommandParseException(INVALID_DEADLINE_COMMAND_MESSAGE);
         }
 
         String description = arguments.substring(0, byMarkerIndex).trim();
-        String by = arguments.substring(byMarkerIndex + BY_MARKER.length()).trim();
+        String by = arguments.substring(byMarkerIndex + MARKER_BY.length()).trim();
         if (description.isEmpty() || by.isEmpty()) {
             throw new CommandParseException(INVALID_DEADLINE_COMMAND_MESSAGE);
         }
@@ -113,15 +113,15 @@ final class Parser {
 
     private ParsedCommand parseEventCommand(String input) throws CommandParseException {
         String arguments = getCommandArguments(input);
-        int fromMarkerIndex = findMarker(arguments, FROM_MARKER);
-        int toMarkerIndex = findMarker(arguments, TO_MARKER);
-        if (fromMarkerIndex < 0 || toMarkerIndex < fromMarkerIndex + FROM_MARKER.length()) {
+        int fromMarkerIndex = findMarker(arguments, MARKER_FROM);
+        int toMarkerIndex = findMarker(arguments, MARKER_TO);
+        if (fromMarkerIndex < 0 || toMarkerIndex < fromMarkerIndex + MARKER_FROM.length()) {
             throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
         }
 
         String description = arguments.substring(0, fromMarkerIndex).trim();
-        String from = arguments.substring(fromMarkerIndex + FROM_MARKER.length(), toMarkerIndex).trim();
-        String to = arguments.substring(toMarkerIndex + TO_MARKER.length()).trim();
+        String from = arguments.substring(fromMarkerIndex + MARKER_FROM.length(), toMarkerIndex).trim();
+        String to = arguments.substring(toMarkerIndex + MARKER_TO.length()).trim();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
         }

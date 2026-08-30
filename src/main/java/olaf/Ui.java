@@ -27,8 +27,8 @@ final class Ui implements AutoCloseable {
     /**
      * Creates a UI using the supplied streams, allowing console behavior to be tested independently.
      *
-     * @param input stream from which commands are read
-     * @param output stream to which responses are written
+     * @param input stream from which commands are read.
+     * @param output stream to which responses are written.
      */
     Ui(InputStream input, PrintStream output) {
         scanner = new Scanner(input);

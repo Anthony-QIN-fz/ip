@@ -7,7 +7,7 @@ import java.util.List;
  */
 abstract class Task {
     private final String description;
-    private boolean isDone;
+    private boolean isDone = false;
 
     protected Task(String description) {
         this.description = description;

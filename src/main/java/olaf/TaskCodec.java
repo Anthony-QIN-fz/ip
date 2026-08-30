@@ -9,23 +9,23 @@ import java.util.List;
  * Converts tasks to and from Olaf's escaped, pipe-delimited storage format.
  */
 final class TaskCodec {
-    private static final String TODO_TYPE = "T";
-    private static final String DEADLINE_TYPE = "D";
-    private static final String EVENT_TYPE = "E";
-    private static final String DONE_STATUS = "1";
-    private static final String NOT_DONE_STATUS = "0";
+    private static final String TYPE_TODO = "T";
+    private static final String TYPE_DEADLINE = "D";
+    private static final String TYPE_EVENT = "E";
+    private static final String STATUS_DONE = "1";
+    private static final String STATUS_NOT_DONE = "0";
     private static final String FIELD_SEPARATOR = " | ";
 
     /**
      * Encodes one task as a storage record.
      *
-     * @param task task to encode
+     * @param task task to encode.
      * @return escaped storage record
      */
     String encode(Task task) {
         List<String> fields = new ArrayList<>();
         fields.add(task.getTypeCode());
-        fields.add(task.isDone() ? DONE_STATUS : NOT_DONE_STATUS);
+        fields.add(task.isDone() ? STATUS_DONE : STATUS_NOT_DONE);
         fields.add(task.getDescription());
         fields.addAll(task.getAdditionalStorageFields());
 
@@ -38,15 +38,15 @@ final class TaskCodec {
     /**
      * Decodes one storage record into a task.
      *
-     * @param record stored task record
-     * @param lineNumber one-based source line number used in error messages
+     * @param record stored task record.
+     * @param lineNumber one-based source line number used in error messages.
      * @return decoded task
      * @throws StorageException if the record is malformed
      */
     Task decode(String record, int lineNumber) throws StorageException {
         List<String> fields = splitFields(record, lineNumber);
         if (fields.size() < 2) {
-            throw invalidRecord(lineNumber, "missing task type or status");
+            throw createInvalidRecordException(lineNumber, "missing task type or status");
         }
 
         String type = fields.get(0);
@@ -54,13 +54,13 @@ final class TaskCodec {
         validateStatus(status, lineNumber);
 
         Task task = switch (type) {
-            case TODO_TYPE -> decodeTodo(fields, lineNumber);
-            case DEADLINE_TYPE -> decodeDeadline(fields, lineNumber);
-            case EVENT_TYPE -> decodeEvent(fields, lineNumber);
-            default -> throw invalidRecord(lineNumber, "unknown task type '" + type + "'");
+            case TYPE_TODO -> decodeTodo(fields, lineNumber);
+            case TYPE_DEADLINE -> decodeDeadline(fields, lineNumber);
+            case TYPE_EVENT -> decodeEvent(fields, lineNumber);
+            default -> throw createInvalidRecordException(lineNumber, "unknown task type '" + type + "'");
         };
 
-        if (DONE_STATUS.equals(status)) {
+        if (STATUS_DONE.equals(status)) {
             task.markAsDone();
         }
         return task;
@@ -94,7 +94,7 @@ final class TaskCodec {
         try {
             return TaskDateFormat.parse(value);
         } catch (DateTimeParseException exception) {
-            throw invalidRecord(lineNumber, fieldName + " must use yyyy-MM-dd");
+            throw createInvalidRecordException(lineNumber, fieldName + " must use yyyy-MM-dd");
         }
     }
 
@@ -107,7 +107,7 @@ final class TaskCodec {
             char character = record.charAt(index);
             if (isEscaping) {
                 if (character != '\\' && character != '|') {
-                    throw invalidRecord(lineNumber, "invalid escape sequence");
+                    throw createInvalidRecordException(lineNumber, "invalid escape sequence");
                 }
                 currentField.append(character);
                 isEscaping = false;
@@ -122,7 +122,7 @@ final class TaskCodec {
         }
 
         if (isEscaping) {
-            throw invalidRecord(lineNumber, "unfinished escape sequence");
+            throw createInvalidRecordException(lineNumber, "unfinished escape sequence");
         }
         fields.add(currentField.toString().trim());
         return fields;
@@ -133,26 +133,26 @@ final class TaskCodec {
     }
 
     private void validateStatus(String status, int lineNumber) throws StorageException {
-        if (!DONE_STATUS.equals(status) && !NOT_DONE_STATUS.equals(status)) {
-            throw invalidRecord(lineNumber, "status must be 0 or 1");
+        if (!STATUS_DONE.equals(status) && !STATUS_NOT_DONE.equals(status)) {
+            throw createInvalidRecordException(lineNumber, "status must be 0 or 1");
         }
     }
 
     private void validateFields(List<String> fields, int expectedCount, int lineNumber)
             throws StorageException {
         if (fields.size() != expectedCount) {
-            throw invalidRecord(lineNumber, "incorrect number of fields");
+            throw createInvalidRecordException(lineNumber, "incorrect number of fields");
         }
     }
 
     private String requireText(String value, String fieldName, int lineNumber) throws StorageException {
         if (value.isBlank()) {
-            throw invalidRecord(lineNumber, fieldName + " cannot be empty");
+            throw createInvalidRecordException(lineNumber, fieldName + " cannot be empty");
         }
         return value;
     }
 
-    private StorageException invalidRecord(int lineNumber, String reason) {
+    private StorageException createInvalidRecordException(int lineNumber, String reason) {
         return new StorageException("Invalid task data on line " + lineNumber + ": " + reason + ".");
     }
 }

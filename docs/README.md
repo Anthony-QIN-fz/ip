@@ -3,20 +3,30 @@
 Olaf is a command-line chatbot that tracks ToDos, deadlines, and events across sessions.
 Enter deadline and event dates in `yyyy-MM-dd` format. Olaf displays them as `MMM dd yyyy`.
 
-## Running in Visual Studio Code
+## Running with Gradle
 
-Prerequisites: JDK 25 and Microsoft's
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack).
+Prerequisite: JDK 25.
 
-1. Open the project root folder in Visual Studio Code.
-1. Use `Java: Configure Java Runtime` from the Command Palette to select **JDK 25**.
-1. Open `src/main/java/olaf/Olaf.java`.
-1. Click the Java **Run** link above the `main` method, or press `F5`.
+1. Open a terminal in the project root folder containing `build.gradle`.
+1. Run `java --version` and confirm that it reports Java 25.
+1. Launch Olaf with the command for your operating system and terminal:
+
+   | Environment | Command |
+   |---|---|
+   | Windows PowerShell | `.\gradlew.bat run` |
+   | Windows Command Prompt | `gradlew.bat run` |
+   | macOS/Linux with Bash, Zsh, Fish, or PowerShell | `./gradlew run` |
+   | Git Bash or WSL | `./gradlew run` |
+
+   If you are using an IDE, run the matching command in its integrated terminal.
 1. After Olaf displays its welcome message, enter `bye` to verify that it runs and exits normally.
 
-Do not use the generic **Run Code** command provided by the Code Runner extension. It compiles
-only the active file and cannot resolve the other classes in the `olaf` package. See the
-[official VS Code Java guide](https://code.visualstudio.com/docs/java/java-tutorial) for more details.
+On macOS or Linux, if the terminal reports that `gradlew` is not executable, run
+`chmod +x gradlew` and then retry `./gradlew run`.
+
+In Visual Studio Code, use `Java: Configure Java Runtime` from the Command Palette to select
+**JDK 25**. Do not launch Olaf with Code Runner's **Run Code** command, the Java **Run** link,
+or `F5`; use the Gradle wrapper command above so the complete project is built and launched.
 
 ## Adding ToDos
 

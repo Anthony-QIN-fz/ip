@@ -16,8 +16,9 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
 1. After that, locate the `src/main/java/Olaf.java` file, right-click it, and choose `Run Olaf.main()` (if the code editor is showing compile errors, try restarting the IDE).
 
 Olaf stores ToDos, deadlines, and events across application sessions. Add them with
-`todo <description>`, `deadline <description> /by <date or time>`, or
-`event <description> /from <start> /to <end>`. Dates and times can be entered in any text format.
+`todo <description>`, `deadline <description> /by <yyyy-MM-dd>`, or
+`event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>`. Enter dates in `yyyy-MM-dd`
+format; Olaf displays them in `MMM dd yyyy` format.
 Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
 `unmark <task number>` to mark a task as not done, `delete <task number>` to remove a task,
 or `bye` to exit. A typical session looks like this:
@@ -40,41 +41,41 @@ the task list changes. The `data` directory and file are created on the first ta
       [T][ ] read book
     Now you have 1 task in the list.
    ____________________________________________________________
-   deadline return book /by Sunday
+   deadline return book /by 2019-10-15
    ____________________________________________________________
     Got it. I've added this task:
-      [D][ ] return book (by: Sunday)
+      [D][ ] return book (by: Oct 15 2019)
     Now you have 2 tasks in the list.
    ____________________________________________________________
-   event project meeting /from Mon 2pm /to 4pm
+   event project meeting /from 2019-10-20 /to 2019-10-21
    ____________________________________________________________
     Got it. I've added this task:
-      [E][ ] project meeting (from: Mon 2pm to: 4pm)
+      [E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)
     Now you have 3 tasks in the list.
    ____________________________________________________________
    list
    ____________________________________________________________
     Here are the tasks in your list:
     1.[T][ ] read book
-    2.[D][ ] return book (by: Sunday)
-    3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+    2.[D][ ] return book (by: Oct 15 2019)
+    3.[E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)
    ____________________________________________________________
    mark 2
    ____________________________________________________________
     Nice! I've marked this task as done:
-      [D][X] return book (by: Sunday)
+      [D][X] return book (by: Oct 15 2019)
    ____________________________________________________________
    list
    ____________________________________________________________
     Here are the tasks in your list:
     1.[T][ ] read book
-    2.[D][X] return book (by: Sunday)
-    3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+    2.[D][X] return book (by: Oct 15 2019)
+    3.[E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)
    ____________________________________________________________
    unmark 2
    ____________________________________________________________
     OK, I've marked this task as not done yet:
-      [D][ ] return book (by: Sunday)
+      [D][ ] return book (by: Oct 15 2019)
    ____________________________________________________________
    delete 1
    ____________________________________________________________
@@ -85,8 +86,8 @@ the task list changes. The `data` directory and file are created on the first ta
    list
    ____________________________________________________________
     Here are the tasks in your list:
-    1.[D][ ] return book (by: Sunday)
-    2.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+    1.[D][ ] return book (by: Oct 15 2019)
+    2.[E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)
    ____________________________________________________________
    bye
    ____________________________________________________________

@@ -1,7 +1,7 @@
 # Olaf User Guide
 
-Olaf is a command-line chatbot that tracks ToDos, deadlines, and events for the current session.
-Dates and times are stored exactly as text, so you can use the format that is most useful to you.
+Olaf is a command-line chatbot that tracks ToDos, deadlines, and events across sessions.
+Enter deadline and event dates in `yyyy-MM-dd` format. Olaf displays them as `MMM dd yyyy`.
 
 ## Adding ToDos
 
@@ -13,19 +13,20 @@ Olaf adds and displays the task as `[T][ ] borrow book`.
 
 ## Adding deadlines
 
-Use `deadline <description> /by <date or time>` for a task that must be completed by a given time.
+Use `deadline <description> /by <yyyy-MM-dd>` for a task that must be completed by a given date.
 
-Example: `deadline return book /by Sunday`
+Example: `deadline return book /by 2019-10-15`
 
-Olaf adds and displays the task as `[D][ ] return book (by: Sunday)`.
+Olaf adds and displays the task as `[D][ ] return book (by: Oct 15 2019)`.
 
 ## Adding events
 
-Use `event <description> /from <start> /to <end>` for a task with a start and end.
+Use `event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>` for a task with start and end dates.
 
-Example: `event project meeting /from Mon 2pm /to 4pm`
+Example: `event project meeting /from 2019-10-20 /to 2019-10-21`
 
-Olaf adds and displays the task as `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
+Olaf adds and displays the task as
+`[E][ ] project meeting (from: Oct 20 2019 to: Oct 21 2019)`.
 
 ## Managing tasks
 

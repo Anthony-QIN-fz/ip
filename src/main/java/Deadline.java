@@ -1,14 +1,15 @@
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Represents a task that must be completed by a given date or time.
+ * Represents a task that must be completed by a given date.
  */
 final class Deadline extends Task {
-    private final String by;
+    private final LocalDate dueDate;
 
-    Deadline(String description, String by) {
+    Deadline(String description, LocalDate dueDate) {
         super(description);
-        this.by = by;
+        this.dueDate = dueDate;
     }
 
     @Override
@@ -18,11 +19,11 @@ final class Deadline extends Task {
 
     @Override
     List<String> getAdditionalStorageFields() {
-        return List.of(by);
+        return List.of(dueDate.toString());
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + TaskDateFormat.format(dueDate) + ")";
     }
 }

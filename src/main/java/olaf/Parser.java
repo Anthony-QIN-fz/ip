@@ -18,6 +18,7 @@ final class Parser {
     private static final String COMMAND_TODO = "todo";
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
+    private static final String COMMAND_FIND = "find";
     private static final String MARKER_BY = "/by";
     private static final String MARKER_FROM = "/from";
     private static final String MARKER_TO = "/to";
@@ -33,8 +34,10 @@ final class Parser {
             "Use 'deadline <description> /by <yyyy-MM-dd>' to add a deadline.";
     private static final String INVALID_EVENT_COMMAND_MESSAGE =
             "Use 'event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>' to add an event.";
+    private static final String INVALID_FIND_COMMAND_MESSAGE =
+            "Use 'find <keyword>' to find matching tasks.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.";
+            "Unknown command. Use todo, deadline, event, find, list, mark, unmark, delete, or bye.";
 
     /**
      * Parses one line of user input.
@@ -63,6 +66,7 @@ final class Parser {
             case COMMAND_TODO -> parseTodoCommand(input);
             case COMMAND_DEADLINE -> parseDeadlineCommand(input);
             case COMMAND_EVENT -> parseEventCommand(input);
+            case COMMAND_FIND -> parseFindCommand(input);
             default -> throw new CommandParseException(UNKNOWN_COMMAND_MESSAGE);
         };
     }
@@ -133,6 +137,14 @@ final class Parser {
         } catch (DateTimeParseException exception) {
             throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
         }
+    }
+
+    private ParsedCommand parseFindCommand(String input) throws CommandParseException {
+        String keyword = getCommandArguments(input);
+        if (keyword.isEmpty()) {
+            throw new CommandParseException(INVALID_FIND_COMMAND_MESSAGE);
+        }
+        return ParsedCommand.find(keyword);
     }
 
     private String getCommandWord(String input) {

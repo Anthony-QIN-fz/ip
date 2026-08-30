@@ -2,6 +2,7 @@ package olaf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Stores Olaf's tasks in insertion order.
@@ -28,6 +29,25 @@ final class TaskList {
      */
     void add(Task task) {
         tasks.add(task);
+    }
+
+    /**
+     * Finds tasks whose descriptions contain the supplied keyword, ignoring letter case.
+     *
+     * @param keyword text to find in task descriptions
+     * @return immutable list of matching tasks in insertion order
+     */
+    List<Task> find(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<Task> matchingTasks = new ArrayList<>();
+
+        for (Task task : tasks) {
+            String normalizedDescription = task.getDescription().toLowerCase(Locale.ROOT);
+            if (normalizedDescription.contains(normalizedKeyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return List.copyOf(matchingTasks);
     }
 
     /**

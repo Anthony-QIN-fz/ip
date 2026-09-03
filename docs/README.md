@@ -1,6 +1,6 @@
 # Olaf User Guide
 
-Olaf is a command-line chatbot that tracks ToDos, deadlines, and events across sessions.
+Olaf is a desktop chatbot that tracks ToDos, deadlines, and events across sessions.
 Enter deadline and event dates in `yyyy-MM-dd` format. Olaf displays them as `MMM dd yyyy`.
 
 ## Running with Gradle
@@ -19,7 +19,11 @@ Prerequisite: JDK 25.
    | Git Bash or WSL | `./gradlew run` |
 
    If you are using an IDE, run the matching command in its integrated terminal.
-1. After Olaf displays its welcome message, enter `bye` to verify that it runs and exits normally.
+1. After Olaf's window displays its welcome message, enter `bye` and press **Enter** or click
+   **Send** to verify that it runs and exits normally.
+
+Commands can be submitted either by pressing **Enter** in the command field or by clicking
+**Send**. The conversation scrolls automatically as new messages are added.
 
 On macOS or Linux, if the terminal reports that `gradlew` is not executable, run
 `chmod +x gradlew` and then retry `./gradlew run`.

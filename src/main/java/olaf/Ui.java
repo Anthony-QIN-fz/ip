@@ -15,9 +15,6 @@ final class Ui implements AutoCloseable {
             + "| |_| | | (_| |  _|\n"
             + " \\___/|_|\\__,_|_|";
     private static final String DIVIDER = "_".repeat(60);
-    private static final String GREETING = "Hello! I'm Olaf. What can I do for you?";
-    private static final String FAREWELL = "Bye. Hope to see you again soon!";
-
     private final Scanner scanner;
     private final PrintStream output;
 
@@ -60,7 +57,7 @@ final class Ui implements AutoCloseable {
     void showWelcome() {
         output.println(BANNER);
         output.println();
-        output.println(GREETING);
+        output.println(ResponseFormatter.formatWelcome());
         output.println(DIVIDER);
     }
 
@@ -68,7 +65,7 @@ final class Ui implements AutoCloseable {
      * Displays Olaf's farewell message.
      */
     void showFarewell() {
-        showMessage(FAREWELL);
+        showResponse(ResponseFormatter.formatFarewell());
     }
 
     /**
@@ -77,7 +74,7 @@ final class Ui implements AutoCloseable {
      * @param tasks task list to display
      */
     void showTaskList(TaskList tasks) {
-        showTasks(" Here are the tasks in your list:", tasks.getTasks());
+        showResponse(ResponseFormatter.formatTaskList(tasks));
     }
 
     /**
@@ -86,16 +83,7 @@ final class Ui implements AutoCloseable {
      * @param matchingTasks matching tasks in display order
      */
     void showMatchingTasks(List<Task> matchingTasks) {
-        showTasks(" Here are the matching tasks in your list:", matchingTasks);
-    }
-
-    private void showTasks(String heading, List<Task> tasks) {
-        output.println(DIVIDER);
-        output.println(heading);
-        for (int index = 0; index < tasks.size(); index++) {
-            output.println(" " + (index + 1) + "." + tasks.get(index));
-        }
-        output.println(DIVIDER);
+        showResponse(ResponseFormatter.formatMatchingTasks(matchingTasks));
     }
 
     /**
@@ -105,9 +93,7 @@ final class Ui implements AutoCloseable {
      * @param taskCount number of tasks after the addition
      */
     void showTaskAdded(Task task, int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        showMessage(" Got it. I've added this task:\n   " + task
-                + "\n Now you have " + taskCount + " " + taskWord + " in the list.");
+        showResponse(ResponseFormatter.formatTaskAdded(task, taskCount));
     }
 
     /**
@@ -116,7 +102,7 @@ final class Ui implements AutoCloseable {
      * @param task task that was marked
      */
     void showTaskMarkedAsDone(Task task) {
-        showMessage(" Nice! I've marked this task as done:\n   " + task);
+        showResponse(ResponseFormatter.formatTaskMarkedAsDone(task));
     }
 
     /**
@@ -125,7 +111,7 @@ final class Ui implements AutoCloseable {
      * @param task task that was unmarked
      */
     void showTaskMarkedAsNotDone(Task task) {
-        showMessage(" OK, I've marked this task as not done yet:\n   " + task);
+        showResponse(ResponseFormatter.formatTaskMarkedAsNotDone(task));
     }
 
     /**
@@ -135,9 +121,7 @@ final class Ui implements AutoCloseable {
      * @param taskCount number of tasks after the deletion
      */
     void showTaskDeleted(Task task, int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        showMessage(" Noted. I've removed this task:\n   " + task
-                + "\n Now you have " + taskCount + " " + taskWord + " in the list.");
+        showResponse(ResponseFormatter.formatTaskDeleted(task, taskCount));
     }
 
     /**
@@ -146,7 +130,7 @@ final class Ui implements AutoCloseable {
      * @param message error details to display
      */
     void showError(String message) {
-        showMessage("error: " + message);
+        showResponse(ResponseFormatter.formatError(message));
     }
 
     /** {@inheritDoc} */
@@ -155,7 +139,12 @@ final class Ui implements AutoCloseable {
         scanner.close();
     }
 
-    private void showMessage(String message) {
+    /**
+     * Displays one complete Olaf response between console dividers.
+     *
+     * @param message response text to display
+     */
+    void showResponse(String message) {
         output.println(DIVIDER);
         output.println(message);
         output.println(DIVIDER);

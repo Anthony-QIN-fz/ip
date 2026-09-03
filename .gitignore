@@ -53,3 +53,6 @@ application-local.yaml
 *.sqlite
 *.sqlite3
 /data/
+
+
+GUI-implementation-guide.txt

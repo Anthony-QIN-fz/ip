@@ -1,6 +1,6 @@
 # Olaf project
 
-Olaf is a chatbot built as a greenfield Java project. Given below are instructions on how to use it.
+Olaf is a desktop chatbot built as a greenfield Java project. Given below are instructions on how to use it.
 
 ## Setting up in Intellij
 
@@ -30,7 +30,8 @@ Prerequisite: JDK 25.
    | Git Bash or WSL | `./gradlew run` |
 
    If you are using an IDE, run the matching command in its integrated terminal.
-1. After Olaf displays its welcome message, enter `bye` to verify that it runs and exits normally.
+1. After Olaf's window displays its welcome message, enter `bye` and press **Enter** or click
+   **Send** to verify that it runs and exits normally.
 
 On macOS or Linux, if the terminal reports that `gradlew` is not executable, run
 `chmod +x gradlew` and then retry `./gradlew run`.
@@ -54,7 +55,8 @@ The suite tests task encoding and decoding, including escaped characters and mal
 records. A successful run ends with `BUILD SUCCESSFUL`, and the HTML report is generated at
 `build/reports/tests/test/index.html`.
 
-Olaf stores ToDos, deadlines, and events across application sessions. Add them with
+The GUI accepts the same text commands as the original console interface. Olaf stores ToDos,
+deadlines, and events across application sessions. Add them with
 `todo <description>`, `deadline <description> /by <yyyy-MM-dd>`, or
 `event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>`. Enter dates in `yyyy-MM-dd`
 format; Olaf displays them in `MMM dd yyyy` format.
@@ -65,6 +67,8 @@ or `bye` to exit. A typical session looks like this:
 
 Olaf loads tasks from `data/olaf.txt` when it starts and automatically saves the file whenever
 the task list changes. The `data` directory and file are created on the first task change.
+
+   The scrolling conversation displays the same responses as this example:
 
    ```
      ___  _        __

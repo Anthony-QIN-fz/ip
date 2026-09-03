@@ -1,9 +1,10 @@
 package olaf;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
- * Coordinates the components of the Olaf chatbot application.
+ * Coordinates command parsing, task operations, persistence, and response generation.
  */
 public class Olaf {
     private static final Path DATA_FILE_PATH = Path.of("data", "olaf.txt");
@@ -11,109 +12,153 @@ public class Olaf {
     private final Storage storage;
     private final TaskList tasks;
     private final Parser parser;
-    private final Ui ui;
 
-    private Olaf(Storage storage, TaskList tasks, Parser parser, Ui ui) {
-        this.storage = storage;
-        this.tasks = tasks;
-        this.parser = parser;
-        this.ui = ui;
+    Olaf(Path dataFilePath) throws StorageException {
+        storage = new Storage(dataFilePath);
+        tasks = storage.load();
+        parser = new Parser();
     }
 
     /**
-     * Starts Olaf's command loop.
+     * Starts Olaf's command-line interface.
      *
-     * @param args command-line arguments, which Olaf does not use.
+     * @param args command-line arguments, which Olaf does not use
      */
     public static void main(String[] args) {
-        Storage storage = new Storage(DATA_FILE_PATH);
         try (Ui ui = new Ui()) {
             try {
-                TaskList tasks = storage.load();
-                Parser parser = new Parser();
-                new Olaf(storage, tasks, parser, ui).run();
+                Olaf olaf = createDefault();
+                olaf.runCommandLine(ui);
             } catch (StorageException exception) {
                 ui.showError(exception.getMessage());
             }
         }
     }
 
-    private void run() {
+    static Olaf createDefault() throws StorageException {
+        return new Olaf(DATA_FILE_PATH);
+    }
+
+    /**
+     * Returns the greeting shown when a user starts a conversation with Olaf.
+     *
+     * @return Olaf's welcome message
+     */
+    public String getWelcomeMessage() {
+        return ResponseFormatter.formatWelcome();
+    }
+
+    /**
+     * Parses and executes one command, returning text and session status for the active interface.
+     * Expected command and task-number errors are returned as recoverable responses. A storage
+     * failure is fatal because the in-memory task list may no longer match the persisted data.
+     *
+     * @param input command entered by the user
+     * @return response text and the resulting session status
+     * @throws NullPointerException if input is null
+     */
+    public CommandResult executeCommand(String input) {
+        Objects.requireNonNull(input, "input");
+
+        try {
+            ParsedCommand command = parser.parse(input);
+            return execute(command);
+        } catch (CommandParseException | InvalidTaskNumberException exception) {
+            return new CommandResult(ResponseFormatter.formatError(exception.getMessage()),
+                    CommandStatus.CONTINUE);
+        } catch (StorageException exception) {
+            return new CommandResult(ResponseFormatter.formatError(exception.getMessage()),
+                    CommandStatus.FATAL_ERROR);
+        }
+    }
+
+    private void runCommandLine(Ui ui) {
         ui.showWelcome();
         while (ui.hasNextCommand()) {
-            try {
-                ParsedCommand command = parser.parse(ui.readCommand());
-                if (shouldExitAfterExecuting(command)) {
-                    return;
-                }
-            } catch (CommandParseException | InvalidTaskNumberException exception) {
-                ui.showError(exception.getMessage());
-            } catch (StorageException exception) {
-                ui.showError(exception.getMessage());
+            CommandResult result = executeCommand(ui.readCommand());
+            ui.showResponse(result.message());
+            if (result.status() != CommandStatus.CONTINUE) {
                 return;
             }
         }
     }
 
-    /**
-     * Executes a validated command.
-     *
-     * @param command command to execute.
-     * @return true if Olaf should exit after executing the command
-     * @throws InvalidTaskNumberException if the command refers to a nonexistent task
-     * @throws StorageException if a changed task list cannot be saved
-     */
-    private boolean shouldExitAfterExecuting(ParsedCommand command)
+    private CommandResult execute(ParsedCommand command)
             throws InvalidTaskNumberException, StorageException {
-        switch (command.getAction()) {
-            case EXIT:
-                ui.showFarewell();
-                return true;
-            case LIST:
-                ui.showTaskList(tasks);
-                break;
-            case FIND:
-                ui.showMatchingTasks(tasks.find(command.getKeyword()));
-                break;
-            case ADD:
-                addTask(command.getTask());
-                break;
-            case MARK:
-                markTask(command.getTaskNumber());
-                break;
-            case UNMARK:
-                unmarkTask(command.getTaskNumber());
-                break;
-            case DELETE:
-                deleteTask(command.getTaskNumber());
-                break;
-            default:
-                throw new IllegalStateException("Unsupported command action: " + command.getAction());
-        }
-        return false;
+        return switch (command.getAction()) {
+            case EXIT -> new CommandResult(ResponseFormatter.formatFarewell(),
+                    CommandStatus.EXIT_REQUESTED);
+            case LIST -> new CommandResult(ResponseFormatter.formatTaskList(tasks),
+                    CommandStatus.CONTINUE);
+            case FIND -> new CommandResult(
+                    ResponseFormatter.formatMatchingTasks(tasks.find(command.getKeyword())),
+                    CommandStatus.CONTINUE);
+            case ADD -> addTask(command.getTask());
+            case MARK -> markTask(command.getTaskNumber());
+            case UNMARK -> unmarkTask(command.getTaskNumber());
+            case DELETE -> deleteTask(command.getTaskNumber());
+        };
     }
 
-    private void addTask(Task task) throws StorageException {
+    private CommandResult addTask(Task task) throws StorageException {
         tasks.add(task);
         storage.save(tasks);
-        ui.showTaskAdded(task, tasks.size());
+        return new CommandResult(ResponseFormatter.formatTaskAdded(task, tasks.size()),
+                CommandStatus.CONTINUE);
     }
 
-    private void markTask(int taskNumber) throws InvalidTaskNumberException, StorageException {
+    private CommandResult markTask(int taskNumber)
+            throws InvalidTaskNumberException, StorageException {
         Task markedTask = tasks.markAsDone(taskNumber);
         storage.save(tasks);
-        ui.showTaskMarkedAsDone(markedTask);
+        return new CommandResult(ResponseFormatter.formatTaskMarkedAsDone(markedTask),
+                CommandStatus.CONTINUE);
     }
 
-    private void unmarkTask(int taskNumber) throws InvalidTaskNumberException, StorageException {
+    private CommandResult unmarkTask(int taskNumber)
+            throws InvalidTaskNumberException, StorageException {
         Task unmarkedTask = tasks.markAsNotDone(taskNumber);
         storage.save(tasks);
-        ui.showTaskMarkedAsNotDone(unmarkedTask);
+        return new CommandResult(ResponseFormatter.formatTaskMarkedAsNotDone(unmarkedTask),
+                CommandStatus.CONTINUE);
     }
 
-    private void deleteTask(int taskNumber) throws InvalidTaskNumberException, StorageException {
+    private CommandResult deleteTask(int taskNumber)
+            throws InvalidTaskNumberException, StorageException {
         Task deletedTask = tasks.delete(taskNumber);
         storage.save(tasks);
-        ui.showTaskDeleted(deletedTask, tasks.size());
+        return new CommandResult(ResponseFormatter.formatTaskDeleted(deletedTask, tasks.size()),
+                CommandStatus.CONTINUE);
+    }
+
+    /**
+     * Describes whether an interface should continue after displaying a command response.
+     */
+    public enum CommandStatus {
+        /** The command completed or failed recoverably, so more input may be accepted. */
+        CONTINUE,
+        /** The user requested a normal exit. */
+        EXIT_REQUESTED,
+        /** Persistence failed, so accepting further commands would be unsafe. */
+        FATAL_ERROR
+    }
+
+    /**
+     * Contains the text and session status produced by one command.
+     *
+     * @param message user-facing response text
+     * @param status status that the active interface should apply after displaying the response
+     */
+    public record CommandResult(String message, CommandStatus status) {
+        /**
+         * Creates an immutable command result with non-null response data.
+         *
+         * @param message user-facing response text
+         * @param status status that the active interface should apply
+         */
+        public CommandResult {
+            Objects.requireNonNull(message, "message");
+            Objects.requireNonNull(status, "status");
+        }
     }
 }

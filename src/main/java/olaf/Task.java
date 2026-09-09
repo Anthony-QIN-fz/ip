@@ -10,6 +10,8 @@ abstract class Task {
     private boolean isDone = false;
 
     protected Task(String description) {
+        assert description != null && !description.isBlank()
+                : "Tasks must have a nonblank description";
         this.description = description;
     }
 

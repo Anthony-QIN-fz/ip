@@ -63,6 +63,8 @@ final class TaskCodec {
         if (STATUS_DONE.equals(status)) {
             task.markAsDone();
         }
+        assert task.isDone() == STATUS_DONE.equals(status)
+                : "Decoded task completion must match the stored status";
         return task;
     }
 

@@ -28,6 +28,7 @@ final class TaskList {
      * @param task task to add.
      */
     void add(Task task) {
+        assert task != null : "Only non-null tasks can be added";
         tasks.add(task);
     }
 

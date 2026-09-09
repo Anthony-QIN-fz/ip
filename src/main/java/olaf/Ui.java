@@ -2,7 +2,6 @@ package olaf;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -59,69 +58,6 @@ final class Ui implements AutoCloseable {
         output.println();
         output.println(ResponseFormatter.formatWelcome());
         output.println(DIVIDER);
-    }
-
-    /**
-     * Displays Olaf's farewell message.
-     */
-    void showFarewell() {
-        showResponse(ResponseFormatter.formatFarewell());
-    }
-
-    /**
-     * Displays every task in the supplied list with its user-facing number.
-     *
-     * @param tasks task list to display
-     */
-    void showTaskList(TaskList tasks) {
-        showResponse(ResponseFormatter.formatTaskList(tasks));
-    }
-
-    /**
-     * Displays tasks that match a find command, numbered within the filtered results.
-     *
-     * @param matchingTasks matching tasks in display order
-     */
-    void showMatchingTasks(List<Task> matchingTasks) {
-        showResponse(ResponseFormatter.formatMatchingTasks(matchingTasks));
-    }
-
-    /**
-     * Displays confirmation that a task was added.
-     *
-     * @param task added task
-     * @param taskCount number of tasks after the addition
-     */
-    void showTaskAdded(Task task, int taskCount) {
-        showResponse(ResponseFormatter.formatTaskAdded(task, taskCount));
-    }
-
-    /**
-     * Displays confirmation that a task was marked as done.
-     *
-     * @param task task that was marked
-     */
-    void showTaskMarkedAsDone(Task task) {
-        showResponse(ResponseFormatter.formatTaskMarkedAsDone(task));
-    }
-
-    /**
-     * Displays confirmation that a task was marked as not done.
-     *
-     * @param task task that was unmarked
-     */
-    void showTaskMarkedAsNotDone(Task task) {
-        showResponse(ResponseFormatter.formatTaskMarkedAsNotDone(task));
-    }
-
-    /**
-     * Displays confirmation that a task was deleted.
-     *
-     * @param task deleted task
-     * @param taskCount number of tasks after the deletion
-     */
-    void showTaskDeleted(Task task, int taskCount) {
-        showResponse(ResponseFormatter.formatTaskDeleted(task, taskCount));
     }
 
     /**

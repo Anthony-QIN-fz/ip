@@ -45,6 +45,12 @@ public class MainWindow {
     private Image userImage;
     private Image olafImage;
 
+    /**
+     * Creates a controller whose controls are supplied by FXML before dependencies are injected.
+     */
+    public MainWindow() {
+    }
+
     @FXML
     private void initialize() {
         userImage = loadImage(USER_IMAGE_PATH);
@@ -101,8 +107,7 @@ public class MainWindow {
     @FXML
     private void handleUserInput() {
         String input = userInput.getText().trim();
-        if (input.isEmpty() || isBusy.get() || isConversationEnded.get()
-                || olaf == null || commandExecutor == null) {
+        if (!canSubmitCommand(input)) {
             return;
         }
 
@@ -116,6 +121,12 @@ public class MainWindow {
         } catch (RejectedExecutionException exception) {
             handleUnexpectedFailure(exception);
         }
+    }
+
+    private boolean canSubmitCommand(String input) {
+        boolean isReady = olaf != null && commandExecutor != null;
+        boolean canAcceptInput = !isBusy.get() && !isConversationEnded.get();
+        return !input.isEmpty() && isReady && canAcceptInput;
     }
 
     private Task<Olaf.CommandResult> createCommandTask(String input) {

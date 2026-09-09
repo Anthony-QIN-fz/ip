@@ -7,6 +7,9 @@ import java.util.List;
  * Represents a task that must be completed by a given date.
  */
 final class Deadline extends Task {
+    /** Identifies a deadline task in storage and displayed responses. */
+    static final String TYPE_CODE = "D";
+
     private final LocalDate dueDate;
 
     Deadline(String description, LocalDate dueDate) {
@@ -17,7 +20,7 @@ final class Deadline extends Task {
     /** {@inheritDoc} */
     @Override
     String getTypeCode() {
-        return "D";
+        return TYPE_CODE;
     }
 
     /** {@inheritDoc} */
@@ -29,6 +32,6 @@ final class Deadline extends Task {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + TaskDateFormat.format(dueDate) + ")";
+        return super.toString() + " (by: " + TaskDateFormat.format(dueDate) + ")";
     }
 }

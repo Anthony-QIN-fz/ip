@@ -20,18 +20,18 @@ final class ResponseFormatter {
         return FAREWELL;
     }
 
+    /** Formats all tasks in insertion order with one-based task numbers. */
     static String formatTaskList(TaskList tasks) {
         return formatTasks(" Here are the tasks in your list:", tasks.getTasks());
     }
 
+    /** Formats search results with numbering local to the filtered list. */
     static String formatMatchingTasks(List<Task> matchingTasks) {
         return formatTasks(" Here are the matching tasks in your list:", matchingTasks);
     }
 
     static String formatTaskAdded(Task task, int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        return " Got it. I've added this task:\n   " + task
-                + "\n Now you have " + taskCount + " " + taskWord + " in the list.";
+        return " Got it. I've added this task:\n   " + task + "\n" + formatTaskCount(taskCount);
     }
 
     static String formatTaskMarkedAsDone(Task task) {
@@ -43,13 +43,16 @@ final class ResponseFormatter {
     }
 
     static String formatTaskDeleted(Task task, int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        return " Noted. I've removed this task:\n   " + task
-                + "\n Now you have " + taskCount + " " + taskWord + " in the list.";
+        return " Noted. I've removed this task:\n   " + task + "\n" + formatTaskCount(taskCount);
     }
 
     static String formatError(String message) {
         return "error: " + message;
+    }
+
+    private static String formatTaskCount(int taskCount) {
+        String taskWord = taskCount == 1 ? "task" : "tasks";
+        return " Now you have " + taskCount + " " + taskWord + " in the list.";
     }
 
     private static String formatTasks(String heading, List<Task> tasks) {

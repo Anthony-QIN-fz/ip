@@ -99,20 +99,10 @@ final class TaskList {
     }
 
     /**
-     * Returns the task at the supplied zero-based index.
+     * Returns an unmodifiable snapshot of the task references for display or persistence.
+     * Changes to this list do not affect the snapshot, but the task objects remain mutable.
      *
-     * @param index zero-based position in the list
-     * @return task at the supplied index
-     * @throws IndexOutOfBoundsException if the index is outside the list
-     */
-    Task get(int index) {
-        return tasks.get(index);
-    }
-
-    /**
-     * Returns an immutable snapshot for persistence.
-     *
-     * @return snapshot of all tasks in insertion order
+     * @return snapshot of all task references in insertion order
      */
     List<Task> getTasks() {
         return List.copyOf(tasks);

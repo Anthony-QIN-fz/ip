@@ -64,7 +64,7 @@ abstract class Task {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "] " + description;
+        return "[" + getTypeCode() + "][" + getStatusIcon() + "] " + description;
     }
 
     private String getStatusIcon() {

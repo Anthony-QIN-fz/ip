@@ -18,6 +18,85 @@ class OlafTest {
     private Path temporaryDirectory;
 
     @Test
+    void executeCommand_addAndDelete_exactCountMessagesReturned() throws StorageException {
+        Olaf olaf = new Olaf(temporaryDirectory.resolve("olaf.txt"));
+
+        assertEquals(" Got it. I've added this task:\n   [T][ ] read book"
+                + "\n Now you have 1 task in the list.", olaf.executeCommand("todo read book").message());
+        assertEquals(" Got it. I've added this task:\n   [T][ ] write notes"
+                + "\n Now you have 2 tasks in the list.", olaf.executeCommand("todo write notes").message());
+        assertEquals(" Noted. I've removed this task:\n   [T][ ] read book"
+                + "\n Now you have 1 task in the list.", olaf.executeCommand("delete 1").message());
+        assertEquals(" Noted. I've removed this task:\n   [T][ ] write notes"
+                + "\n Now you have 0 tasks in the list.", olaf.executeCommand("delete 1").message());
+    }
+
+    @Test
+    void executeCommand_allTaskTypes_listFormattingPreserved() throws StorageException {
+        Olaf olaf = new Olaf(temporaryDirectory.resolve("olaf.txt"));
+        olaf.executeCommand("todo read book");
+        olaf.executeCommand("deadline return book /by 2026-09-01");
+        olaf.executeCommand("event meeting /from 2026-09-01 /to 2026-09-02");
+
+        String[] taskDescriptions = {"[T][ ] read book", "[D][ ] return book (by: Sep 01 2026)",
+                "[E][ ] meeting (from: Sep 01 2026 to: Sep 02 2026)"};
+        for (int index = 0; index < taskDescriptions.length; index++) {
+            Olaf.CommandResult result = olaf.executeCommand("mark " + (index + 1));
+            assertEquals(Olaf.CommandStatus.CONTINUE, result.status());
+            assertEquals(" Nice! I've marked this task as done:\n   "
+                    + taskDescriptions[index].replace("[ ]", "[X]"), result.message());
+        }
+
+        String expectedList = String.join(System.lineSeparator(), " Here are the tasks in your list:",
+                " 1.[T][X] read book", " 2.[D][X] return book (by: Sep 01 2026)",
+                " 3.[E][X] meeting (from: Sep 01 2026 to: Sep 02 2026)");
+        assertEquals(expectedList, olaf.executeCommand("list").message());
+    }
+
+    @Test
+    void executeCommand_markThenReload_completionPersisted() throws StorageException {
+        Path dataFile = temporaryDirectory.resolve("olaf.txt");
+        Olaf olaf = new Olaf(dataFile);
+        olaf.executeCommand("todo read book");
+
+        Olaf.CommandResult result = olaf.executeCommand("mark 1");
+
+        assertEquals(Olaf.CommandStatus.CONTINUE, result.status());
+        assertEquals(" Nice! I've marked this task as done:\n   [T][X] read book", result.message());
+        assertEquals(" Here are the tasks in your list:" + System.lineSeparator() + " 1.[T][X] read book",
+                new Olaf(dataFile).executeCommand("list").message());
+    }
+
+    @Test
+    void executeCommand_unmarkThenReload_completionPersisted() throws StorageException {
+        Path dataFile = temporaryDirectory.resolve("olaf.txt");
+        Olaf olaf = new Olaf(dataFile);
+        olaf.executeCommand("todo read book");
+        olaf.executeCommand("mark 1");
+
+        Olaf.CommandResult result = olaf.executeCommand("unmark 1");
+
+        assertEquals(Olaf.CommandStatus.CONTINUE, result.status());
+        assertEquals(" OK, I've marked this task as not done yet:\n   [T][ ] read book", result.message());
+        assertEquals(" Here are the tasks in your list:" + System.lineSeparator() + " 1.[T][ ] read book",
+                new Olaf(dataFile).executeCommand("list").message());
+    }
+
+    @Test
+    void executeCommand_deleteThenReload_remainingTaskRenumbered() throws StorageException {
+        Path dataFile = temporaryDirectory.resolve("olaf.txt");
+        Olaf olaf = new Olaf(dataFile);
+        olaf.executeCommand("todo read book");
+        olaf.executeCommand("todo write notes");
+
+        Olaf.CommandResult result = olaf.executeCommand("delete 1");
+
+        assertEquals(Olaf.CommandStatus.CONTINUE, result.status());
+        assertEquals(" Here are the tasks in your list:" + System.lineSeparator() + " 1.[T][ ] write notes",
+                new Olaf(dataFile).executeCommand("list").message());
+    }
+
+    @Test
     void executeCommand_addThenReload_taskWasPersisted() throws StorageException {
         Path dataFile = temporaryDirectory.resolve("data").resolve("olaf.txt");
         Olaf olaf = new Olaf(dataFile);

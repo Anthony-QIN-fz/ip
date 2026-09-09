@@ -7,6 +7,9 @@ import java.util.List;
  * Represents a task that takes place between a given start and end.
  */
 final class Event extends Task {
+    /** Identifies an event task in storage and displayed responses. */
+    static final String TYPE_CODE = "E";
+
     private final LocalDate startDate;
     private final LocalDate endDate;
 
@@ -19,7 +22,7 @@ final class Event extends Task {
     /** {@inheritDoc} */
     @Override
     String getTypeCode() {
-        return "E";
+        return TYPE_CODE;
     }
 
     /** {@inheritDoc} */
@@ -31,7 +34,7 @@ final class Event extends Task {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + TaskDateFormat.format(startDate)
+        return super.toString() + " (from: " + TaskDateFormat.format(startDate)
                 + " to: " + TaskDateFormat.format(endDate) + ")";
     }
 }

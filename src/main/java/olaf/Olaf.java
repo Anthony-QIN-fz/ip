@@ -97,6 +97,7 @@ public class Olaf {
             case MARK -> markTask(command.getTaskNumber());
             case UNMARK -> unmarkTask(command.getTaskNumber());
             case DELETE -> deleteTask(command.getTaskNumber());
+            default -> throw new IllegalStateException("Unsupported command action: " + command.getAction());
         };
     }
 

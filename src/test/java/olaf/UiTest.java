@@ -19,14 +19,16 @@ class UiTest {
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Test
-    void showMatchingTasks_multipleMatches_tasksNumberedAndFormatted() {
+    void showResponse_multipleMatches_tasksNumberedAndFormatted() {
         ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
         Ui ui = new Ui(InputStream.nullInputStream(), new PrintStream(outputBytes));
         Task todo = new Todo("read book");
         Task deadline = new Deadline("return book", LocalDate.of(2026, 9, 1));
         deadline.markAsDone();
 
-        ui.showMatchingTasks(List.of(todo, deadline));
+        try (ui) {
+            ui.showResponse(ResponseFormatter.formatMatchingTasks(List.of(todo, deadline)));
+        }
 
         String expectedOutput = String.join(LINE_SEPARATOR,
                 DIVIDER,
@@ -39,11 +41,13 @@ class UiTest {
     }
 
     @Test
-    void showMatchingTasks_noMatches_headingAndDividersShown() {
+    void showResponse_noMatches_headingAndDividersShown() {
         ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
         Ui ui = new Ui(InputStream.nullInputStream(), new PrintStream(outputBytes));
 
-        ui.showMatchingTasks(List.of());
+        try (ui) {
+            ui.showResponse(ResponseFormatter.formatMatchingTasks(List.of()));
+        }
 
         String expectedOutput = String.join(LINE_SEPARATOR,
                 DIVIDER,

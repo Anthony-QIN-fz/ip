@@ -9,12 +9,19 @@ import java.util.List;
  * Converts tasks to and from Olaf's escaped, pipe-delimited storage format.
  */
 final class TaskCodec {
-    private static final String TYPE_TODO = "T";
-    private static final String TYPE_DEADLINE = "D";
-    private static final String TYPE_EVENT = "E";
     private static final String STATUS_DONE = "1";
     private static final String STATUS_NOT_DONE = "0";
     private static final String FIELD_SEPARATOR = " | ";
+    private static final int FIELD_INDEX_TYPE = 0;
+    private static final int FIELD_INDEX_STATUS = 1;
+    private static final int FIELD_INDEX_DESCRIPTION = 2;
+    private static final int FIELD_INDEX_DEADLINE = 3;
+    private static final int FIELD_INDEX_EVENT_START = 3;
+    private static final int FIELD_INDEX_EVENT_END = 4;
+    private static final int FIELD_COUNT_HEADER = 2;
+    private static final int FIELD_COUNT_TODO = 3;
+    private static final int FIELD_COUNT_DEADLINE = 4;
+    private static final int FIELD_COUNT_EVENT = 5;
 
     /**
      * Encodes one task as a storage record.
@@ -45,18 +52,18 @@ final class TaskCodec {
      */
     Task decode(String record, int lineNumber) throws StorageException {
         List<String> fields = splitFields(record, lineNumber);
-        if (fields.size() < 2) {
+        if (fields.size() < FIELD_COUNT_HEADER) {
             throw createInvalidRecordException(lineNumber, "missing task type or status");
         }
 
-        String type = fields.get(0);
-        String status = fields.get(1);
+        String type = fields.get(FIELD_INDEX_TYPE);
+        String status = fields.get(FIELD_INDEX_STATUS);
         validateStatus(status, lineNumber);
 
         Task task = switch (type) {
-            case TYPE_TODO -> decodeTodo(fields, lineNumber);
-            case TYPE_DEADLINE -> decodeDeadline(fields, lineNumber);
-            case TYPE_EVENT -> decodeEvent(fields, lineNumber);
+            case Todo.TYPE_CODE -> decodeTodo(fields, lineNumber);
+            case Deadline.TYPE_CODE -> decodeDeadline(fields, lineNumber);
+            case Event.TYPE_CODE -> decodeEvent(fields, lineNumber);
             default -> throw createInvalidRecordException(lineNumber, "unknown task type '" + type + "'");
         };
 
@@ -69,32 +76,30 @@ final class TaskCodec {
     }
 
     private Task decodeTodo(List<String> fields, int lineNumber) throws StorageException {
-        validateFields(fields, 3, lineNumber);
-        return new Todo(requireText(fields.get(2), "description", lineNumber));
+        validateFieldCount(fields, FIELD_COUNT_TODO, lineNumber);
+        return new Todo(requireText(fields.get(FIELD_INDEX_DESCRIPTION), "description", lineNumber));
     }
 
     private Task decodeDeadline(List<String> fields, int lineNumber) throws StorageException {
-        validateFields(fields, 4, lineNumber);
-        String description = requireText(fields.get(2), "description", lineNumber);
-        LocalDate by = parseDate(requireText(fields.get(3), "deadline", lineNumber),
-                "deadline", lineNumber);
-        return new Deadline(description, by);
+        validateFieldCount(fields, FIELD_COUNT_DEADLINE, lineNumber);
+        String description = requireText(fields.get(FIELD_INDEX_DESCRIPTION), "description", lineNumber);
+        LocalDate dueDate = parseDate(fields.get(FIELD_INDEX_DEADLINE), "deadline", lineNumber);
+        return new Deadline(description, dueDate);
     }
 
     private Task decodeEvent(List<String> fields, int lineNumber) throws StorageException {
-        validateFields(fields, 5, lineNumber);
-        String description = requireText(fields.get(2), "description", lineNumber);
-        LocalDate from = parseDate(requireText(fields.get(3), "event start", lineNumber),
-                "event start", lineNumber);
-        LocalDate to = parseDate(requireText(fields.get(4), "event end", lineNumber),
-                "event end", lineNumber);
-        return new Event(description, from, to);
+        validateFieldCount(fields, FIELD_COUNT_EVENT, lineNumber);
+        String description = requireText(fields.get(FIELD_INDEX_DESCRIPTION), "description", lineNumber);
+        LocalDate startDate = parseDate(fields.get(FIELD_INDEX_EVENT_START), "event start", lineNumber);
+        LocalDate endDate = parseDate(fields.get(FIELD_INDEX_EVENT_END), "event end", lineNumber);
+        return new Event(description, startDate, endDate);
     }
 
     private LocalDate parseDate(String value, String fieldName, int lineNumber)
             throws StorageException {
+        String dateText = requireText(value, fieldName, lineNumber);
         try {
-            return TaskDateFormat.parse(value);
+            return TaskDateFormat.parse(dateText);
         } catch (DateTimeParseException exception) {
             throw createInvalidRecordException(lineNumber, fieldName + " must use yyyy-MM-dd");
         }
@@ -108,9 +113,7 @@ final class TaskCodec {
         for (int index = 0; index < record.length(); index++) {
             char character = record.charAt(index);
             if (isEscaping) {
-                if (character != '\\' && character != '|') {
-                    throw createInvalidRecordException(lineNumber, "invalid escape sequence");
-                }
+                validateEscapedCharacter(character, lineNumber);
                 currentField.append(character);
                 isEscaping = false;
             } else if (character == '\\') {
@@ -134,13 +137,19 @@ final class TaskCodec {
         return field.replace("\\", "\\\\").replace("|", "\\|");
     }
 
+    private void validateEscapedCharacter(char character, int lineNumber) throws StorageException {
+        if (character != '\\' && character != '|') {
+            throw createInvalidRecordException(lineNumber, "invalid escape sequence");
+        }
+    }
+
     private void validateStatus(String status, int lineNumber) throws StorageException {
         if (!STATUS_DONE.equals(status) && !STATUS_NOT_DONE.equals(status)) {
             throw createInvalidRecordException(lineNumber, "status must be 0 or 1");
         }
     }
 
-    private void validateFields(List<String> fields, int expectedCount, int lineNumber)
+    private void validateFieldCount(List<String> fields, int expectedCount, int lineNumber)
             throws StorageException {
         if (fields.size() != expectedCount) {
             throw createInvalidRecordException(lineNumber, "incorrect number of fields");

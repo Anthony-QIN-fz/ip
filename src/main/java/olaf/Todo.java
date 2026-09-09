@@ -6,6 +6,9 @@ import java.util.List;
  * Represents a task without a date.
  */
 final class Todo extends Task {
+    /** Identifies a to-do task in storage and displayed responses. */
+    static final String TYPE_CODE = "T";
+
     Todo(String description) {
         super(description);
     }
@@ -13,18 +16,12 @@ final class Todo extends Task {
     /** {@inheritDoc} */
     @Override
     String getTypeCode() {
-        return "T";
+        return TYPE_CODE;
     }
 
     /** {@inheritDoc} */
     @Override
     List<String> getAdditionalStorageFields() {
         return List.of();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "[T]" + super.toString();
     }
 }

@@ -111,6 +111,12 @@ final class ParsedCommand {
         return taskNumber;
     }
 
+    /**
+     * Returns the search text carried by a find command.
+     *
+     * @return keyword or phrase to find in task descriptions
+     * @throws IllegalStateException if this is not a find command
+     */
     String getKeyword() {
         if (action != Action.FIND) {
             throw new IllegalStateException("Only a find command contains a keyword.");

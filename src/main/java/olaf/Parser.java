@@ -55,107 +55,99 @@ final class Parser {
             return ParsedCommand.createWithoutPayload(ParsedCommand.Action.LIST);
         }
 
-        String commandWord = getCommandWord(trimmedInput).toLowerCase(Locale.ROOT);
+        String[] commandParts = trimmedInput.split("\\s+", 2);
+        String commandWord = commandParts[0].toLowerCase(Locale.ROOT);
+        String arguments = commandParts.length == 2 ? commandParts[1] : "";
         return switch (commandWord) {
             case COMMAND_MARK -> parseTaskNumberCommand(
-                    input, ParsedCommand.Action.MARK, INVALID_MARK_COMMAND_MESSAGE);
+                    arguments, ParsedCommand.Action.MARK, INVALID_MARK_COMMAND_MESSAGE);
             case COMMAND_UNMARK -> parseTaskNumberCommand(
-                    input, ParsedCommand.Action.UNMARK, INVALID_UNMARK_COMMAND_MESSAGE);
+                    arguments, ParsedCommand.Action.UNMARK, INVALID_UNMARK_COMMAND_MESSAGE);
             case COMMAND_DELETE -> parseTaskNumberCommand(
-                    input, ParsedCommand.Action.DELETE, INVALID_DELETE_COMMAND_MESSAGE);
-            case COMMAND_TODO -> parseTodoCommand(input);
-            case COMMAND_DEADLINE -> parseDeadlineCommand(input);
-            case COMMAND_EVENT -> parseEventCommand(input);
-            case COMMAND_FIND -> parseFindCommand(input);
+                    arguments, ParsedCommand.Action.DELETE, INVALID_DELETE_COMMAND_MESSAGE);
+            case COMMAND_TODO -> parseTodoCommand(arguments);
+            case COMMAND_DEADLINE -> parseDeadlineCommand(arguments);
+            case COMMAND_EVENT -> parseEventCommand(arguments);
+            case COMMAND_FIND -> parseFindCommand(arguments);
             default -> throw new CommandParseException(UNKNOWN_COMMAND_MESSAGE);
         };
     }
 
-    private ParsedCommand parseTaskNumberCommand(String input, ParsedCommand.Action action,
+    private ParsedCommand parseTaskNumberCommand(String arguments, ParsedCommand.Action action,
             String invalidCommandMessage) throws CommandParseException {
-        String[] commandParts = input.trim().split("\\s+");
-        if (commandParts.length != 2) {
-            throw new CommandParseException(invalidCommandMessage);
-        }
-
         try {
-            int taskNumber = Integer.parseInt(commandParts[1]);
+            int taskNumber = Integer.parseInt(arguments);
             return ParsedCommand.createForTaskNumber(action, taskNumber);
         } catch (NumberFormatException exception) {
             throw new CommandParseException(invalidCommandMessage);
         }
     }
 
-    private ParsedCommand parseTodoCommand(String input) throws CommandParseException {
-        String description = getCommandArguments(input);
-        if (description.isEmpty()) {
-            throw new CommandParseException(INVALID_TODO_COMMAND_MESSAGE);
-        }
+    private ParsedCommand parseTodoCommand(String arguments) throws CommandParseException {
+        String description = requireText(arguments, INVALID_TODO_COMMAND_MESSAGE);
         return ParsedCommand.add(new Todo(description));
     }
 
-    private ParsedCommand parseDeadlineCommand(String input) throws CommandParseException {
-        String arguments = getCommandArguments(input);
-        int byMarkerIndex = findMarker(arguments, MARKER_BY);
+    private ParsedCommand parseDeadlineCommand(String arguments) throws CommandParseException {
+        String trimmedArguments = arguments.trim();
+        int byMarkerIndex = findMarker(trimmedArguments, MARKER_BY);
         if (byMarkerIndex < 0) {
             throw new CommandParseException(INVALID_DEADLINE_COMMAND_MESSAGE);
         }
 
-        String description = arguments.substring(0, byMarkerIndex).trim();
-        String by = arguments.substring(byMarkerIndex + MARKER_BY.length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            throw new CommandParseException(INVALID_DEADLINE_COMMAND_MESSAGE);
-        }
-
-        try {
-            LocalDate byDate = TaskDateFormat.parse(by);
-            return ParsedCommand.add(new Deadline(description, byDate));
-        } catch (DateTimeParseException exception) {
-            throw new CommandParseException(INVALID_DEADLINE_COMMAND_MESSAGE);
-        }
+        String description = requireText(trimmedArguments.substring(0, byMarkerIndex),
+                INVALID_DEADLINE_COMMAND_MESSAGE);
+        String dueDateText = requireText(trimmedArguments.substring(byMarkerIndex + MARKER_BY.length()),
+                INVALID_DEADLINE_COMMAND_MESSAGE);
+        LocalDate dueDate = parseDate(dueDateText, INVALID_DEADLINE_COMMAND_MESSAGE);
+        return ParsedCommand.add(new Deadline(description, dueDate));
     }
 
-    private ParsedCommand parseEventCommand(String input) throws CommandParseException {
-        String arguments = getCommandArguments(input);
-        int fromMarkerIndex = findMarker(arguments, MARKER_FROM);
-        int toMarkerIndex = findMarker(arguments, MARKER_TO);
+    private ParsedCommand parseEventCommand(String arguments) throws CommandParseException {
+        String trimmedArguments = arguments.trim();
+        int fromMarkerIndex = findMarker(trimmedArguments, MARKER_FROM);
+        int toMarkerIndex = findMarker(trimmedArguments, MARKER_TO);
         if (fromMarkerIndex < 0 || toMarkerIndex < fromMarkerIndex + MARKER_FROM.length()) {
             throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
         }
 
-        String description = arguments.substring(0, fromMarkerIndex).trim();
-        String from = arguments.substring(fromMarkerIndex + MARKER_FROM.length(), toMarkerIndex).trim();
-        String to = arguments.substring(toMarkerIndex + MARKER_TO.length()).trim();
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
-        }
-
-        try {
-            LocalDate fromDate = TaskDateFormat.parse(from);
-            LocalDate toDate = TaskDateFormat.parse(to);
-            return ParsedCommand.add(new Event(description, fromDate, toDate));
-        } catch (DateTimeParseException exception) {
-            throw new CommandParseException(INVALID_EVENT_COMMAND_MESSAGE);
-        }
+        String description = requireText(trimmedArguments.substring(0, fromMarkerIndex),
+                INVALID_EVENT_COMMAND_MESSAGE);
+        String startDateText = requireText(
+                trimmedArguments.substring(fromMarkerIndex + MARKER_FROM.length(), toMarkerIndex),
+                INVALID_EVENT_COMMAND_MESSAGE);
+        String endDateText = requireText(trimmedArguments.substring(toMarkerIndex + MARKER_TO.length()),
+                INVALID_EVENT_COMMAND_MESSAGE);
+        LocalDate startDate = parseDate(startDateText, INVALID_EVENT_COMMAND_MESSAGE);
+        LocalDate endDate = parseDate(endDateText, INVALID_EVENT_COMMAND_MESSAGE);
+        return ParsedCommand.add(new Event(description, startDate, endDate));
     }
 
-    private ParsedCommand parseFindCommand(String input) throws CommandParseException {
-        String keyword = getCommandArguments(input);
-        if (keyword.isEmpty()) {
-            throw new CommandParseException(INVALID_FIND_COMMAND_MESSAGE);
-        }
+    private ParsedCommand parseFindCommand(String arguments) throws CommandParseException {
+        String keyword = requireText(arguments, INVALID_FIND_COMMAND_MESSAGE);
         return ParsedCommand.find(keyword);
     }
 
-    private String getCommandWord(String input) {
-        return input.split("\\s+", 2)[0];
+    private String requireText(String text, String invalidCommandMessage) throws CommandParseException {
+        String trimmedText = text.trim();
+        if (trimmedText.isEmpty()) {
+            throw new CommandParseException(invalidCommandMessage);
+        }
+        return trimmedText;
     }
 
-    private String getCommandArguments(String input) {
-        String[] commandParts = input.trim().split("\\s+", 2);
-        return commandParts.length == 2 ? commandParts[1].trim() : "";
+    private LocalDate parseDate(String dateText, String invalidCommandMessage) throws CommandParseException {
+        try {
+            return TaskDateFormat.parse(dateText);
+        } catch (DateTimeParseException exception) {
+            throw new CommandParseException(invalidCommandMessage);
+        }
     }
 
+    /**
+     * Finds the first case-insensitive marker bounded by whitespace or the start/end of the text.
+     * These boundaries prevent words such as {@code /bylaws} from being treated as markers.
+     */
     private int findMarker(String text, String marker) {
         Pattern markerPattern = Pattern.compile(
                 "(?i)(?<!\\S)" + Pattern.quote(marker) + "(?!\\S)");

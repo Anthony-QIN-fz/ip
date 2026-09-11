@@ -1,5 +1,6 @@
 package olaf;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -90,6 +91,45 @@ final class TaskList {
     }
 
     /**
+     * Replaces the due date of the selected deadline without changing its list position or status.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @param dueDate replacement due date
+     * @return the updated deadline
+     * @throws InvalidTaskNumberException if no task has the supplied number
+     * @throws TaskRescheduleException if the selected task is not a deadline
+     */
+    Task rescheduleDeadline(int taskNumber, LocalDate dueDate)
+            throws InvalidTaskNumberException, TaskRescheduleException {
+        Task task = getByTaskNumber(taskNumber);
+        if (!(task instanceof Deadline deadline)) {
+            throw createScheduleTypeException(task);
+        }
+        deadline.reschedule(dueDate);
+        return deadline;
+    }
+
+    /**
+     * Replaces both dates of the selected event without changing its list position or status.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @param startDate replacement start date
+     * @param endDate replacement end date
+     * @return the updated event
+     * @throws InvalidTaskNumberException if no task has the supplied number
+     * @throws TaskRescheduleException if the task is not an event or the date range is reversed
+     */
+    Task rescheduleEvent(int taskNumber, LocalDate startDate, LocalDate endDate)
+            throws InvalidTaskNumberException, TaskRescheduleException {
+        Task task = getByTaskNumber(taskNumber);
+        if (!(task instanceof Event event)) {
+            throw createScheduleTypeException(task);
+        }
+        event.reschedule(startDate, endDate);
+        return event;
+    }
+
+    /**
      * Returns the number of tasks in this list.
      *
      * @return task count
@@ -106,6 +146,19 @@ final class TaskList {
      */
     List<Task> getTasks() {
         return List.copyOf(tasks);
+    }
+
+    private TaskRescheduleException createScheduleTypeException(Task task) {
+        if (task instanceof Deadline) {
+            return new TaskRescheduleException("This task is a deadline. "
+                    + "Use 'reschedule <task number> /by <yyyy-MM-dd>'.");
+        }
+        if (task instanceof Event) {
+            return new TaskRescheduleException("This task is an event. "
+                    + "Use 'reschedule <task number> /from <yyyy-MM-dd> /to <yyyy-MM-dd>'.");
+        }
+        return new TaskRescheduleException("ToDos have no dates to reschedule. "
+                + "Use 'list' to choose a deadline or event.");
     }
 
     private Task getByTaskNumber(int taskNumber) throws InvalidTaskNumberException {

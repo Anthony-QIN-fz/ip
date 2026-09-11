@@ -46,6 +46,11 @@ final class ResponseFormatter {
         return " Noted. I've removed this task:\n   " + task + "\n" + formatTaskCount(taskCount);
     }
 
+    /** Formats the confirmation and updated task after a successful reschedule. */
+    static String formatTaskRescheduled(Task task) {
+        return " OK, I've rescheduled this task:\n   " + task;
+    }
+
     static String formatError(String message) {
         return "error: " + message;
     }

@@ -3,6 +3,8 @@ package olaf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -22,7 +24,8 @@ class ParserTest {
     void parse_unknownOrUnexpectedArguments_unknownCommandMessageReturned() {
         for (String input : new String[] {"", "  ", "dance", "list extra", "bye extra"}) {
             assertInvalidCommand(input,
-                    "Unknown command. Use todo, deadline, event, find, list, mark, unmark, delete, or bye.");
+                    "Unknown command. Use todo, deadline, event, find, list, mark, unmark, "
+                            + "delete, reschedule, or bye.");
         }
     }
 
@@ -152,6 +155,73 @@ class ParserTest {
                 () -> parser.parse("find   "));
 
         assertEquals("Use 'find <keyword>' to find matching tasks.", exception.getMessage());
+    }
+
+    @Test
+    void parse_rescheduleDeadlineMixedCaseAndWhitespace_dateAndTaskNumberReturned()
+            throws CommandParseException {
+        ParsedCommand command = parser.parse("  ReScHeDuLe\t+2  /BY\t2028-02-29  ");
+
+        assertEquals(ParsedCommand.Action.RESCHEDULE_DEADLINE, command.getAction());
+        assertEquals(2, command.getTaskNumber());
+        assertEquals(LocalDate.of(2028, 2, 29), command.getScheduledDate());
+    }
+
+    @Test
+    void parse_rescheduleEventMixedCaseAndWhitespace_datesAndTaskNumberReturned()
+            throws CommandParseException {
+        ParsedCommand command = parser.parse("  RESCHEDULE 3\t/FROM 2026-09-20 /To\t2026-09-22  ");
+
+        assertEquals(ParsedCommand.Action.RESCHEDULE_EVENT, command.getAction());
+        assertEquals(3, command.getTaskNumber());
+        assertEquals(LocalDate.of(2026, 9, 20), command.getScheduledDate());
+        assertEquals(LocalDate.of(2026, 9, 22), command.getEndDate());
+    }
+
+    @Test
+    void parse_rescheduleNonpositiveTaskNumbers_leftForTaskListValidation() throws CommandParseException {
+        assertTaskNumberCommand("reschedule 0 /by 2026-09-20", ParsedCommand.Action.RESCHEDULE_DEADLINE, 0);
+        assertTaskNumberCommand("reschedule -1 /from 2026-09-20 /to 2026-09-22",
+                ParsedCommand.Action.RESCHEDULE_EVENT, -1);
+    }
+
+    @Test
+    void parse_rescheduleReversedEventRange_leftForEventValidation() throws CommandParseException {
+        ParsedCommand command = parser.parse("reschedule 1 /from 2026-09-22 /to 2026-09-20");
+
+        assertEquals(LocalDate.of(2026, 9, 22), command.getScheduledDate());
+        assertEquals(LocalDate.of(2026, 9, 20), command.getEndDate());
+    }
+
+    @Test
+    void parse_rescheduleMalformed_usageMessageReturned() {
+        String[] inputs = {"reschedule", "reschedule 1", "reschedule /by 2026-09-20",
+                "reschedule one /by 2026-09-20", "reschedule 2147483648 /by 2026-09-20",
+                "reschedule 1.5 /by 2026-09-20", "reschedule 1 2 /by 2026-09-20",
+                "reschedule 1 /by", "reschedule 1 /by 2026-02-29", "reschedule 1 /by 2026-9-20",
+                "reschedule 1 /by 20-09-2026", "reschedule 1 /by tomorrow",
+                "reschedule 1 /by 2026-09-20T12:00", "reschedule 1/by 2026-09-20",
+                "reschedule 1 /by2026-09-20", "reschedule 1 /bylaws 2026-09-20",
+                "reschedule 1 /by 2026-09-20 extra", "reschedule 1 /by 2026-09-20 /by 2026-09-21",
+                "reschedule 1 /from 2026-09-20", "reschedule 1 /to 2026-09-22",
+                "reschedule 1 /from /to 2026-09-22", "reschedule 1 /from 2026-09-20 /to",
+                "reschedule 1 /from 2026-02-29 /to 2026-09-22",
+                "reschedule 1 /from 2026-09-20 /to 2026-02-29",
+                "reschedule 1 /to 2026-09-22 /from 2026-09-20",
+                "reschedule 1 /from 2026-09-20 /from 2026-09-22",
+                "reschedule 1 /by 2026-09-20 /to 2026-09-22",
+                "reschedule 1 /from 2026-09-20 /by 2026-09-22",
+                "reschedule 1 /from2026-09-20 /to 2026-09-22",
+                "reschedule 1 /from 2026-09-20/to 2026-09-22",
+                "reschedule 1 /from 2026-09-20 /to2026-09-22",
+                "reschedule 1 /from 2026-09-20 /to 2026-09-22 extra",
+                "reschedule 1 /from 2026-09-20 /to 2026-09-22 /to 2026-09-23",
+                "reschedule 1 /from 2026-09-20 /to 2026-09-22 /by 2026-09-24"};
+
+        for (String input : inputs) {
+            assertInvalidCommand(input, "Use 'reschedule <task number> /by <yyyy-MM-dd>' for a deadline or "
+                    + "'reschedule <task number> /from <yyyy-MM-dd> /to <yyyy-MM-dd>' for an event.");
+        }
     }
 
     private void assertInvalidCommand(String input, String expectedMessage) {

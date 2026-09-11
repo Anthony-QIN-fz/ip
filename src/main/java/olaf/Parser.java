@@ -19,6 +19,7 @@ final class Parser {
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
     private static final String COMMAND_FIND = "find";
+    private static final String COMMAND_RESCHEDULE = "reschedule";
     private static final String MARKER_BY = "/by";
     private static final String MARKER_FROM = "/from";
     private static final String MARKER_TO = "/to";
@@ -36,8 +37,12 @@ final class Parser {
             "Use 'event <description> /from <yyyy-MM-dd> /to <yyyy-MM-dd>' to add an event.";
     private static final String INVALID_FIND_COMMAND_MESSAGE =
             "Use 'find <keyword>' to find matching tasks.";
+    private static final String INVALID_RESCHEDULE_COMMAND_MESSAGE =
+            "Use 'reschedule <task number> /by <yyyy-MM-dd>' for a deadline or "
+                    + "'reschedule <task number> /from <yyyy-MM-dd> /to <yyyy-MM-dd>' for an event.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
-            "Unknown command. Use todo, deadline, event, find, list, mark, unmark, delete, or bye.";
+            "Unknown command. Use todo, deadline, event, find, list, mark, unmark, "
+                    + "delete, reschedule, or bye.";
 
     /**
      * Parses one line of user input.
@@ -69,15 +74,19 @@ final class Parser {
             case COMMAND_DEADLINE -> parseDeadlineCommand(arguments);
             case COMMAND_EVENT -> parseEventCommand(arguments);
             case COMMAND_FIND -> parseFindCommand(arguments);
+            case COMMAND_RESCHEDULE -> parseRescheduleCommand(arguments);
             default -> throw new CommandParseException(UNKNOWN_COMMAND_MESSAGE);
         };
     }
 
     private ParsedCommand parseTaskNumberCommand(String arguments, ParsedCommand.Action action,
             String invalidCommandMessage) throws CommandParseException {
+        return ParsedCommand.createForTaskNumber(action, parseTaskNumber(arguments, invalidCommandMessage));
+    }
+
+    private int parseTaskNumber(String text, String invalidCommandMessage) throws CommandParseException {
         try {
-            int taskNumber = Integer.parseInt(arguments);
-            return ParsedCommand.createForTaskNumber(action, taskNumber);
+            return Integer.parseInt(text);
         } catch (NumberFormatException exception) {
             throw new CommandParseException(invalidCommandMessage);
         }
@@ -126,6 +135,23 @@ final class Parser {
     private ParsedCommand parseFindCommand(String arguments) throws CommandParseException {
         String keyword = requireText(arguments, INVALID_FIND_COMMAND_MESSAGE);
         return ParsedCommand.find(keyword);
+    }
+
+    private ParsedCommand parseRescheduleCommand(String arguments) throws CommandParseException {
+        String[] parts = arguments.trim().split("\\s+");
+        if (parts.length == 3 && parts[1].equalsIgnoreCase(MARKER_BY)) {
+            int taskNumber = parseTaskNumber(parts[0], INVALID_RESCHEDULE_COMMAND_MESSAGE);
+            LocalDate dueDate = parseDate(parts[2], INVALID_RESCHEDULE_COMMAND_MESSAGE);
+            return ParsedCommand.rescheduleDeadline(taskNumber, dueDate);
+        }
+        if (parts.length == 5 && parts[1].equalsIgnoreCase(MARKER_FROM)
+                && parts[3].equalsIgnoreCase(MARKER_TO)) {
+            int taskNumber = parseTaskNumber(parts[0], INVALID_RESCHEDULE_COMMAND_MESSAGE);
+            LocalDate startDate = parseDate(parts[2], INVALID_RESCHEDULE_COMMAND_MESSAGE);
+            LocalDate endDate = parseDate(parts[4], INVALID_RESCHEDULE_COMMAND_MESSAGE);
+            return ParsedCommand.rescheduleEvent(taskNumber, startDate, endDate);
+        }
+        throw new CommandParseException(INVALID_RESCHEDULE_COMMAND_MESSAGE);
     }
 
     private String requireText(String text, String invalidCommandMessage) throws CommandParseException {

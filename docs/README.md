@@ -43,9 +43,13 @@ From the project root, run the test suite with the command for your operating sy
 | macOS/Linux with Bash, Zsh, Fish, or PowerShell | `./gradlew test` |
 | Git Bash or WSL | `./gradlew test` |
 
-The suite tests task encoding and decoding, including escaped characters and malformed storage
-records. A successful run ends with `BUILD SUCCESSFUL`, and the HTML report is generated at
+The suite tests command parsing, task operations, rescheduling, persistence, and task encoding,
+including escaped characters and malformed storage records. A successful run ends with
+`BUILD SUCCESSFUL`, and the HTML report is generated at
 `build/reports/tests/test/index.html`.
+
+On Windows, if Gradle cannot load `GradleWorkerMain`, retry with
+`.\gradlew.bat test '-Dfile.encoding=COMPAT'` while still using JDK 25.
 
 ## Adding ToDos
 
@@ -78,10 +82,50 @@ Olaf adds and displays the task as
 - Use `mark <task number>` to mark a task as done.
 - Use `unmark <task number>` to mark a task as not done.
 - Use `delete <task number>` to remove a task. The remaining tasks are renumbered automatically.
+- Use `reschedule` to change a deadline or event's dates, as described below.
 - Use `bye` to exit Olaf.
 
 Example: `delete 2` removes the task currently displayed as number 2 and reports how many
 tasks remain in the list.
+
+## Rescheduling deadlines and events
+
+Use `list` to find the task's number in the full task list. Numbers in `find` results are local to
+that search and should not be used for rescheduling. Enter commands in the chat window or console.
+
+For a deadline, use `reschedule <task number> /by <yyyy-MM-dd>`.
+
+Example: `reschedule 2 /by 2026-09-20`
+
+```text
+ OK, I've rescheduled this task:
+   [D][ ] return book (by: Sep 20 2026)
+```
+
+For an event, supply both dates using
+`reschedule <task number> /from <yyyy-MM-dd> /to <yyyy-MM-dd>`.
+
+Example: `reschedule 3 /from 2026-09-20 /to 2026-09-22`
+
+```text
+ OK, I've rescheduled this task:
+   [E][ ] meeting (from: Sep 20 2026 to: Sep 22 2026)
+```
+
+- Dates must use `yyyy-MM-dd`. Earlier, later, past, and unchanged dates are accepted.
+- Both event dates are replaced, so the event's duration may change. The end must be on or after
+  the start; same-day events are allowed.
+- The description, completion status, task type, and list position are preserved. Completed
+  tasks stay completed; use `unmark <task number>` to reopen them.
+- ToDos have no dates and cannot be rescheduled. Choose a deadline or event instead.
+- Use `/by` for deadlines and `/from` followed by `/to` for events. Commands and markers ignore letter case.
+- Only exact dates are supported. Relative delays such as `tomorrow` or `3 days` and reminder snoozing
+  are unsupported.
+
+Successful changes are saved automatically and persist after restarting Olaf. Invalid task
+numbers, malformed dates, incomplete commands, and reversed event ranges produce an error
+without changing the task list or saved data. For example, rescheduling an event with an end
+before its start returns `error: The event end date must be on or after its start date.`
 
 
 ## AI Use Declaration

@@ -51,9 +51,13 @@ From the project root, run the test suite with the command for your operating sy
 | macOS/Linux with Bash, Zsh, Fish, or PowerShell | `./gradlew test` |
 | Git Bash or WSL | `./gradlew test` |
 
-The suite tests task encoding and decoding, including escaped characters and malformed storage
-records. A successful run ends with `BUILD SUCCESSFUL`, and the HTML report is generated at
+The suite tests command parsing, task operations, rescheduling, persistence, and task encoding,
+including escaped characters and malformed storage records. A successful run ends with
+`BUILD SUCCESSFUL`, and the HTML report is generated at
 `build/reports/tests/test/index.html`.
+
+On Windows, if Gradle cannot load `GradleWorkerMain`, retry with
+`.\gradlew.bat test '-Dfile.encoding=COMPAT'` while still using JDK 25.
 
 The GUI accepts the same text commands as the original console interface. Olaf stores ToDos,
 deadlines, and events across application sessions. Add them with
@@ -63,6 +67,7 @@ format; Olaf displays them in `MMM dd yyyy` format.
 Enter `list` to display the stored tasks, `mark <task number>` to mark a task as done,
 `unmark <task number>` to mark a task as not done, `delete <task number>` to remove a task,
 `find <keyword>` to display tasks whose descriptions contain the keyword (ignoring case),
+`reschedule` to change a deadline or event's dates as described below,
 or `bye` to exit. A typical session looks like this:
 
 Olaf loads tasks from `data/olaf.txt` when it starts and automatically saves the file whenever
@@ -144,6 +149,33 @@ the task list changes. The `data` directory and file are created on the first ta
    Bye. Hope to see you again soon!
    ____________________________________________________________
    ```
+
+## Rescheduling tasks
+
+Use `list` to find the task's number, then enter the appropriate command in the chat window or console:
+
+| Task type | Format | Example |
+|---|---|---|
+| Deadline | `reschedule <task number> /by <yyyy-MM-dd>` | `reschedule 2 /by 2026-09-20` |
+| Event | `reschedule <task number> /from <yyyy-MM-dd> /to <yyyy-MM-dd>` | `reschedule 3 /from 2026-09-20 /to 2026-09-22` |
+
+For example, rescheduling a deadline named `return book` produces:
+
+```text
+ OK, I've rescheduled this task:
+   [D][ ] return book (by: Sep 20 2026)
+```
+
+Both event dates are required, and the end must be on or after the start. Earlier, later, past,
+and unchanged dates are accepted. Enter exact dates in `yyyy-MM-dd` format; relative delays such
+as `tomorrow` or `3 days` are unsupported. Commands and date markers ignore letter case.
+
+Rescheduling preserves the task's description, completion status, type, and list position.
+Completed tasks stay completed; use `unmark <task number>` to reopen them. ToDos have no dates
+and cannot be rescheduled. Use numbers from the full `list`, since `find` numbers its results separately.
+
+Changes are saved automatically and remain after restarting Olaf. Invalid commands show an
+error and leave the tasks unchanged.
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
 

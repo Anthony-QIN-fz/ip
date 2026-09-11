@@ -2,6 +2,7 @@ package olaf;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a task that takes place between a given start and end.
@@ -10,11 +11,29 @@ final class Event extends Task {
     /** Identifies an event task in storage and displayed responses. */
     static final String TYPE_CODE = "E";
 
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     Event(String description, LocalDate startDate, LocalDate endDate) {
         super(description);
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    /**
+     * Replaces both event dates after validating the complete date range.
+     *
+     * @param startDate replacement start date
+     * @param endDate replacement end date, which may equal the start date
+     * @throws TaskRescheduleException if the end date is before the start date
+     * @throws NullPointerException if either date is null
+     */
+    void reschedule(LocalDate startDate, LocalDate endDate) throws TaskRescheduleException {
+        Objects.requireNonNull(startDate, "startDate");
+        Objects.requireNonNull(endDate, "endDate");
+        if (endDate.isBefore(startDate)) {
+            throw new TaskRescheduleException("The event end date must be on or after its start date.");
+        }
         this.startDate = startDate;
         this.endDate = endDate;
     }

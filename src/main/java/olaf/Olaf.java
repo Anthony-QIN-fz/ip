@@ -1,6 +1,7 @@
 package olaf;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -50,7 +51,7 @@ public class Olaf {
 
     /**
      * Parses and executes one command, returning text and session status for the active interface.
-     * Expected command and task-number errors are returned as recoverable responses. A storage
+     * Expected command, task-number, and rescheduling errors are returned as recoverable responses. A storage
      * failure is fatal because the in-memory task list may no longer match the persisted data.
      *
      * @param input command entered by the user
@@ -63,7 +64,7 @@ public class Olaf {
         try {
             ParsedCommand command = parser.parse(input);
             return execute(command);
-        } catch (CommandParseException | InvalidTaskNumberException exception) {
+        } catch (CommandParseException | InvalidTaskNumberException | TaskRescheduleException exception) {
             return new CommandResult(ResponseFormatter.formatError(exception.getMessage()),
                     CommandStatus.CONTINUE);
         } catch (StorageException exception) {
@@ -84,7 +85,7 @@ public class Olaf {
     }
 
     private CommandResult execute(ParsedCommand command)
-            throws InvalidTaskNumberException, StorageException {
+            throws InvalidTaskNumberException, TaskRescheduleException, StorageException {
         return switch (command.getAction()) {
             case EXIT -> new CommandResult(ResponseFormatter.formatFarewell(),
                     CommandStatus.EXIT_REQUESTED);
@@ -97,6 +98,10 @@ public class Olaf {
             case MARK -> markTask(command.getTaskNumber());
             case UNMARK -> unmarkTask(command.getTaskNumber());
             case DELETE -> deleteTask(command.getTaskNumber());
+            case RESCHEDULE_DEADLINE -> rescheduleDeadline(
+                    command.getTaskNumber(), command.getScheduledDate());
+            case RESCHEDULE_EVENT -> rescheduleEvent(command.getTaskNumber(),
+                    command.getScheduledDate(), command.getEndDate());
             default -> throw new IllegalStateException("Unsupported command action: " + command.getAction());
         };
     }
@@ -129,6 +134,22 @@ public class Olaf {
         Task deletedTask = tasks.delete(taskNumber);
         storage.save(tasks);
         return new CommandResult(ResponseFormatter.formatTaskDeleted(deletedTask, tasks.size()),
+                CommandStatus.CONTINUE);
+    }
+
+    private CommandResult rescheduleDeadline(int taskNumber, LocalDate dueDate)
+            throws InvalidTaskNumberException, TaskRescheduleException, StorageException {
+        Task rescheduledTask = tasks.rescheduleDeadline(taskNumber, dueDate);
+        storage.save(tasks);
+        return new CommandResult(ResponseFormatter.formatTaskRescheduled(rescheduledTask),
+                CommandStatus.CONTINUE);
+    }
+
+    private CommandResult rescheduleEvent(int taskNumber, LocalDate startDate, LocalDate endDate)
+            throws InvalidTaskNumberException, TaskRescheduleException, StorageException {
+        Task rescheduledTask = tasks.rescheduleEvent(taskNumber, startDate, endDate);
+        storage.save(tasks);
+        return new CommandResult(ResponseFormatter.formatTaskRescheduled(rescheduledTask),
                 CommandStatus.CONTINUE);
     }
 

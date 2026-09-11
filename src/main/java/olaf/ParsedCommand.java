@@ -1,5 +1,6 @@
 package olaf;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -14,19 +15,31 @@ final class ParsedCommand {
         ADD,
         MARK,
         UNMARK,
-        DELETE
+        DELETE,
+        RESCHEDULE_DEADLINE,
+        RESCHEDULE_EVENT
     }
 
     private final Action action;
     private final Task task;
     private final int taskNumber;
     private final String keyword;
+    /** Holds the replacement due date for a deadline or start date for an event. */
+    private final LocalDate scheduledDate;
+    private final LocalDate endDate;
 
     private ParsedCommand(Action action, Task task, int taskNumber, String keyword) {
+        this(action, task, taskNumber, keyword, null, null);
+    }
+
+    private ParsedCommand(Action action, Task task, int taskNumber, String keyword,
+            LocalDate scheduledDate, LocalDate endDate) {
         this.action = action;
         this.task = task;
         this.taskNumber = taskNumber;
         this.keyword = keyword;
+        this.scheduledDate = scheduledDate;
+        this.endDate = endDate;
     }
 
     /**
@@ -77,6 +90,32 @@ final class ParsedCommand {
     }
 
     /**
+     * Creates a command that replaces a deadline's due date.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @param dueDate replacement due date
+     * @return parsed deadline reschedule command
+     */
+    static ParsedCommand rescheduleDeadline(int taskNumber, LocalDate dueDate) {
+        return new ParsedCommand(Action.RESCHEDULE_DEADLINE, null, taskNumber, null,
+                Objects.requireNonNull(dueDate), null);
+    }
+
+    /**
+     * Creates a command that replaces both dates of an event.
+     * The event validates date order when the command is executed.
+     *
+     * @param taskNumber one-based task number shown by the list command
+     * @param startDate replacement start date
+     * @param endDate replacement end date
+     * @return parsed event reschedule command
+     */
+    static ParsedCommand rescheduleEvent(int taskNumber, LocalDate startDate, LocalDate endDate) {
+        return new ParsedCommand(Action.RESCHEDULE_EVENT, null, taskNumber, null,
+                Objects.requireNonNull(startDate), Objects.requireNonNull(endDate));
+    }
+
+    /**
      * Returns the operation represented by this command.
      *
      * @return command action
@@ -105,7 +144,8 @@ final class ParsedCommand {
      * @throws IllegalStateException if this command does not operate on a task number
      */
     int getTaskNumber() {
-        if (action != Action.MARK && action != Action.UNMARK && action != Action.DELETE) {
+        if (action != Action.MARK && action != Action.UNMARK && action != Action.DELETE
+                && action != Action.RESCHEDULE_DEADLINE && action != Action.RESCHEDULE_EVENT) {
             throw new IllegalStateException("This command does not contain a task number.");
         }
         return taskNumber;
@@ -122,5 +162,31 @@ final class ParsedCommand {
             throw new IllegalStateException("Only a find command contains a keyword.");
         }
         return keyword;
+    }
+
+    /**
+     * Returns the replacement deadline due date or event start date.
+     *
+     * @return date that starts the replacement schedule
+     * @throws IllegalStateException if this is not a reschedule command
+     */
+    LocalDate getScheduledDate() {
+        if (action != Action.RESCHEDULE_DEADLINE && action != Action.RESCHEDULE_EVENT) {
+            throw new IllegalStateException("Only a reschedule command contains a scheduled date.");
+        }
+        return scheduledDate;
+    }
+
+    /**
+     * Returns the replacement event end date.
+     *
+     * @return end date for the rescheduled event
+     * @throws IllegalStateException if this is not an event reschedule command
+     */
+    LocalDate getEndDate() {
+        if (action != Action.RESCHEDULE_EVENT) {
+            throw new IllegalStateException("Only an event reschedule command contains an end date.");
+        }
+        return endDate;
     }
 }

@@ -2,6 +2,7 @@ package olaf;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a task that must be completed by a given date.
@@ -10,11 +11,21 @@ final class Deadline extends Task {
     /** Identifies a deadline task in storage and displayed responses. */
     static final String TYPE_CODE = "D";
 
-    private final LocalDate dueDate;
+    private LocalDate dueDate;
 
     Deadline(String description, LocalDate dueDate) {
         super(description);
         this.dueDate = dueDate;
+    }
+
+    /**
+     * Replaces the due date while preserving the task's description and completion status.
+     *
+     * @param dueDate replacement due date
+     * @throws NullPointerException if the date is null
+     */
+    void reschedule(LocalDate dueDate) {
+        this.dueDate = Objects.requireNonNull(dueDate, "dueDate");
     }
 
     /** {@inheritDoc} */
